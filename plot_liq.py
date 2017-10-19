@@ -24,71 +24,16 @@ from contextlib import contextmanager
 import itertools
 import numpy as np
 
-@contextmanager
-def cd(newdir):
-    prevdir = os.getcwd()
-    os.chdir(os.path.expanduser(newdir))
-    try:
-        yield
-    finally:
-        os.chdir(prevdir)
+import gf_common
 
-def get_run_name(path):
-    if path[-1] == '/':
-        path = path[:-1]
-    return os.path.basename(path)
-
-def check_gridfile(gridfile):
-    if len(gridfile) > 0 and os.path.exists(gridfile[0]):
-        print "Gridfile found at: %s" % gridfile
-        return True
-    else:
-        print "gridfile not found at: %s" % gridfile
-        return False
-        
 def create_xyz_name(out_dir, run_name, model, map_type, vs30_model):
     return os.path.join(out_dir, "%s_zhu_2016_%s_%s_%s.xyz" % (run_name, model, map_type, vs30_model))
-    
-def plot(out_dir, xyz_path, run_name, vs30_model, map_type, model):
-    with cd(out_dir):
-        print 'Plotting'
-        plot_cmd = "plot_stations.py %s" % xyz_path
-        print plot_cmd
-        subprocess.call(plot_cmd, shell=True)
-
-    plot_file = os.path.join(out_dir, "PNG_stations/c000.png")
-    plot_name = os.path.join(out_dir, "%s_liq_%s_%s_%s.png" % (run_name, vs30_model, map_type, model))
-
-    if not os.path.exists(plot_file):
-        print "output plot not found at: %s" % plot_file
-        exit()
-
-    os.rename(plot_file, plot_name)
-    
-    print "%s was created" % plot_name 
-
-sim_workflow_dir = "/home/nesi00213/gm_sim_workflow/devel"
-      
-parser = argparse.ArgumentParser(description='Run the various steps required to plot liquefaction for a given quake')
-parser.add_argument('path', help='path to folder that contains quake info (usually in realtime)')
-
-args = parser.parse_args()
-
-path = args.path
-
-run_name = get_run_name(path)
+         
+path, run_name = gf_common.get_path_name()
 
 out_dir = os.path.join(path, 'Impact/Liquefaction/')
 
-gridfile = glob.glob(os.path.join(path, 'GM/Sim/*/PNG_tssum/grid.xml'))
-
-if not check_gridfile(gridfile):
-    gridfile = glob.glob(os.path.join(path, 'GM/Sim/*/*/PNG_tssum/grid.xml'))
-    if not check_gridfile(gridfile):
-        exit()
-
-gridfile = gridfile[0]
-
+gridfile = find_gridfile(path)
 
 model_list = ('general', 'coastal')
 map_type_list = ('probability', 'susceptibility')
@@ -100,8 +45,8 @@ for config in plot_configs:
     model, map_type, vs30_model = config
 
     liq_config = 'zhu_2016_%s_%s_%s.ini' % (model, map_type, vs30_model)
-    model_dir = os.path.join(sim_workflow_dir  , 'groundfailure/model')
-    config_dir = os.path.join(sim_workflow_dir  , 'groundfailure/config')
+    model_dir = os.path.join(gf_common.sim_workflow_dir  , 'groundfailure/model')
+    config_dir = os.path.join(gf_common.sim_workflow_dir  , 'groundfailure/config')
     liq_cmd = "python3 /usr/bin/gfail %s %s -d %s -c %s -o %s --set-bounds 'zoom, pgv, 0' --hdf5" % (liq_config, gridfile, model_dir, config_dir, out_dir)
 
     print 'Running liquefaction calculations'
@@ -116,7 +61,7 @@ for config in plot_configs:
     
     xyz_path = create_xyz_name(out_dir, run_name, model, map_type, vs30_model)
     
-    process_cmd = os.path.join(sim_workflow_dir  , 'groundfailure/gen_gf_surface.py') + " %s -t %s -o %s" % (h5path, run_name, xyz_path)
+    process_cmd = os.path.join(gf_common.sim_workflow_dir  , 'groundfailure/gen_gf_surface.py') + " %s -t %s -o %s" % (h5path, run_name, xyz_path)
     if model == 'coastal':
         process_cmd += " -m1"
     else:
@@ -133,7 +78,7 @@ for config in plot_configs:
         print "xyz file not found at %s" % xyz_path
         exit()
 
-    plot(out_dir, xyz_path, run_name, vs30_model, map_type, model)
+    gf_common.plot(out_dir, xyz_path, run_name, vs30_model, map_type, model, 'liq')
 
 
 def normalise(val):
@@ -208,6 +153,6 @@ for vs30_model in vs30_model_list:
             print "mean: %f, std: %f, min: %f, max: %f\n" % (np.mean(data), np.std(data, ddof=1), np.min(data), np.max(data))
             
         print diff_out_name
-        plot(out_dir, diff_out_name, run_name, vs30_model, map_type, model)
+        gf_common.plot(out_dir, diff_out_name, run_name, vs30_model, map_type, model, 'liq')
 
 print "Done"
