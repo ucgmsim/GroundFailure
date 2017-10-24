@@ -18,9 +18,7 @@ Writes to impact/liquefaction/ the images produced from this analysis
 
 import glob
 import os
-import argparse
 import subprocess
-from contextlib import contextmanager
 import itertools
 import numpy as np
 
@@ -33,20 +31,18 @@ path, run_name = gf_common.get_path_name()
 
 out_dir = os.path.join(path, 'Impact/Liquefaction/')
 
-gridfile = find_gridfile(path)
+gridfile = gf_common.find_gridfile(path)
 
-model_list = ('general', 'coastal')
-map_type_list = ('probability', 'susceptibility')
-vs30_model_list = ('nz-specific-vs30', 'topo-based-vs30')
 
-plot_configs = list(itertools.product(model_list, map_type_list, vs30_model_list))
+
+plot_configs = list(itertools.product(gf_common.model_list, gf_common.map_type_list, gf_common.vs30_model_list))
 
 for config in plot_configs:
     model, map_type, vs30_model = config
 
     liq_config = 'zhu_2016_%s_%s_%s.ini' % (model, map_type, vs30_model)
-    model_dir = os.path.join(gf_common.sim_workflow_dir  , 'groundfailure/model')
-    config_dir = os.path.join(gf_common.sim_workflow_dir  , 'groundfailure/config')
+    model_dir = os.path.join(gf_common.sim_workflow_dir  , 'liquefaction_model')
+    config_dir = os.path.join(gf_common.sim_workflow_dir  , 'config')
     liq_cmd = "python3 /usr/bin/gfail %s %s -d %s -c %s -o %s --set-bounds 'zoom, pgv, 0' --hdf5" % (liq_config, gridfile, model_dir, config_dir, out_dir)
 
     print 'Running liquefaction calculations'
@@ -61,7 +57,7 @@ for config in plot_configs:
     
     xyz_path = create_xyz_name(out_dir, run_name, model, map_type, vs30_model)
     
-    process_cmd = os.path.join(gf_common.sim_workflow_dir  , 'groundfailure/gen_gf_surface.py') + " %s -t %s -o %s" % (h5path, run_name, xyz_path)
+    process_cmd = os.path.join(gf_common.sim_workflow_dir  , 'gen_gf_surface.py') + " %s -t %s -o %s" % (h5path, run_name, xyz_path)
     if model == 'coastal':
         process_cmd += " -m1"
     else:
@@ -86,11 +82,11 @@ def normalise(val):
         return 0
     elif val < -3.15:
         return 1
-    elif val < -1.95
+    elif val < -1.95:
         return 2
-    elif val < -1.15
+    elif val < -1.15:
         return 3
-    else
+    else:
         return 4
     
 
@@ -99,7 +95,7 @@ def normalise(val):
 map_type = 'susceptibility'
 model = 'arithdiff'
 
-for vs30_model in vs30_model_list:
+for vs30_model in gf_common.vs30_model_list:
     fname1 = create_xyz_name(out_dir, run_name, 'general', map_type, vs30_model)
     fname2 = create_xyz_name(out_dir, run_name, 'coastal', map_type, vs30_model)
 

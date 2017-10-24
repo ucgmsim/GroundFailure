@@ -5,8 +5,17 @@ Common shared functions used by both plot_liq and plot_ls
 @author Jason Motha
 @contact jason.motha@canterbury.ac.nz
 """
+import glob
+import os
+import argparse
+from contextlib import contextmanager
+import subprocess
 
-sim_workflow_dir = "/home/nesi00213/groundFailure"
+sim_workflow_dir = "/home/nesi00213/groundfailure"
+
+model_list = ('general', 'coastal')
+map_type_list = ('probability', 'susceptibility')
+vs30_model_list = ('nz-specific-vs30', 'topo-based-vs30')
 
 @contextmanager
 def cd(newdir):
@@ -28,7 +37,7 @@ def get_path_name():
     return path, get_run_name(path)
     
 
-def get_run_name():
+def get_run_name(path):
     if path[-1] == '/':
         path = path[:-1]
     return os.path.basename(path)
@@ -50,6 +59,7 @@ def find_gridfile(path):
             exit()
 
     gridfile = gridfile[0]
+    return gridfile
 
 def plot(out_dir, xyz_path, run_name, vs30_model, map_type, model, gf_type):
     
