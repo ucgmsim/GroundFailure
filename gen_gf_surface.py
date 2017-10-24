@@ -105,7 +105,7 @@ with open(fout_name, 'w') as fout:
             val = values[i][j]
             if not math.isnan(val) and not math.isinf(val):
                 if val > threshold:
-                    if not is_ls or not susceptibility or value < 0:
+                    if not is_ls or not susceptibility or val < 0:
                         fout.write("%f %f %f\n" % (lat[j], lon[len_lon - i - 1], val))
                         vmax = max(vmax, val)
                         vmin = min(vmin, val)
