@@ -6,6 +6,12 @@ Common shared functions used by both plot_liq and plot_ls
 @contact jason.motha@canterbury.ac.nz
 """
 
+import glob
+import os
+import argparse
+from contextlib import contextmanager
+import subprocess
+
 sim_workflow_dir = "/home/nesi00213/groundFailure"
 
 @contextmanager
@@ -28,7 +34,7 @@ def get_path_name():
     return path, get_run_name(path)
     
 
-def get_run_name():
+def get_run_name(path):
     if path[-1] == '/':
         path = path[:-1]
     return os.path.basename(path)
