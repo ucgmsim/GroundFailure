@@ -27,9 +27,9 @@ import gf_common
 def create_xyz_name(out_dir, run_name, model, map_type, vs30_model):
     return os.path.join(out_dir, "%s_zhu_2016_%s_%s_%s.xyz" % (run_name, model, map_type, vs30_model))
          
-path, run_name = gf_common.get_path_name()
+path, run_name, realisation = gf_common.get_path_name()
 
-out_dir = os.path.join(path, 'Impact/Liquefaction/')
+out_dir = gf_common.create_output_path(path, 'liquefaction', realisation)
 
 gridfile = gf_common.find_gridfile(path)
 

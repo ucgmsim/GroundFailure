@@ -25,9 +25,9 @@ def create_xyz_name(out_dir, run_name, map_type):
     return os.path.join(out_dir, "%s_jessee_2017_%s.xyz" % (run_name,map_type))
 
 def __main__():
-    path, run_name = gf_common.get_path_name()
+    path, run_name, realisation = gf_common.get_path_name()
 
-    out_dir = os.path.join(path, 'Impact/Landslide/')
+    out_dir = gf_common.create_output_path(path, realisation, 'landslide')
 
     gridfile = gf_common.find_gridfile(path)
 

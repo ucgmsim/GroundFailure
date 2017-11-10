@@ -9,9 +9,11 @@ import argparse
 parser = argparse.ArgumentParser('csv2grid')
 
 parser.add_argument('csvfile', type=str)
+parser.add_argument('runname', type=str)
 args = parser.parse_args()
 
 fname = args.csvfile
+run_name = args.run_name
 
 with open(fname) as f:
     lats = list()
@@ -61,7 +63,7 @@ grd_pgv.close()
 #grd_mmi.close()
 
 
-event_id = run_name = 'Empirical_Hazard'
+event_id = run_name
 event_type = 'SCENARIO'
 mag = 0
 dep = 0
