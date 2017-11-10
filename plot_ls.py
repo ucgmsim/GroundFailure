@@ -27,7 +27,7 @@ def create_xyz_name(out_dir, run_name, map_type):
 def __main__():
     path, run_name, realisation = gf_common.get_path_name()
 
-    out_dir = gf_common.create_output_path(path, realisation, 'landslide')
+    out_dir = gf_common.create_output_path(path, 'landslide', realisation)
 
     gridfile = gf_common.find_gridfile(path, realisation)
 
