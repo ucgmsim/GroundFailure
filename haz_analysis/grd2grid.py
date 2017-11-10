@@ -19,7 +19,7 @@ with open(fname) as f:
     values = list()
 
     for line in f:
-        lon, lat, __ = line.split()
+        lon, lat, __ = map(np.float, line.split())
         values.append((lon, lat))
 
 values.sort(key=lambda tup: (tup[0], tup[1]))
@@ -31,12 +31,12 @@ corner4 = values[-1]
 
 
 corners = [corner3, corner1, corner4, corner2]
-region = (corner1[0], corner2[0], corner4[1], corner3[1])
+region = (corner1[0], corner2[0], corner3[1], corner4[1])
 # region = (166.382450, 174.398790, -46.859300, -40.504500)
 
 mask = 'modelmask.grd'
 
-dy = dx = '4k'
+dy = dx = '2k'
 
 geo.path_from_corners(corners= corners, min_edge_points= 100, \
         output= 'modelpath_hr')
@@ -78,7 +78,7 @@ pager_grid.write_shakemap_grid_header(event_id, event_type, mag, dep, hlat, hlon
                                       grd_ny)
 for a in xrange(len(lats) - 1, - 1, - 1):
     for b in xrange(len(lons)):
-        if pgvs[a, b] <= 0:
+        if pgvs[a, b] <= 0 and False:
             pgv = float('nan')
         else:
             pgv = pgvs[a, b]
