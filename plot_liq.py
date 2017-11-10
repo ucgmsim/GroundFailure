@@ -31,7 +31,7 @@ path, run_name, realisation = gf_common.get_path_name()
 
 out_dir = gf_common.create_output_path(path, 'liquefaction', realisation)
 
-gridfile = gf_common.find_gridfile(path)
+gridfile = gf_common.find_gridfile(path, realisation)
 
 
 

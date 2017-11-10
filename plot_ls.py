@@ -29,7 +29,7 @@ def __main__():
 
     out_dir = gf_common.create_output_path(path, realisation, 'landslide')
 
-    gridfile = gf_common.find_gridfile(path)
+    gridfile = gf_common.find_gridfile(path, realisation)
 
     for map_type in gf_common.map_type_list:
         config = 'jessee_2017_%s.ini' % (map_type)
