@@ -6,6 +6,25 @@ import numpy as np
 import os
 
 import argparse
+import errno
+
+
+def create_dir(directory):
+    """Function to create the Figures dir if it doesn't exist
+    Inputs:
+        parms - the parameters
+    Outputs:
+        None
+    """
+    try:
+        os.makedirs(directory)
+        print 'Creating dir %s ' % (directory)
+    except OSError as exc:
+        if exc.errno != errno.EEXIST:
+            raise
+
+        print 'Not Creating dir %s. Already exists' % (directory)
+        pass
 
 parser = argparse.ArgumentParser('csv2grid')
 
@@ -18,6 +37,9 @@ fname = args.csvfile
 run_name = args.run_name
 output_dir = args.output_dir
 temp_dir = os.path.join(output_dir, 'temp')
+
+create_dir(output_dir)
+create_dir(temp_dir)
 
 with open(fname) as f:
     lats = list()
