@@ -3,6 +3,7 @@ from qcore.shakemap_grid import shakemapGrid
 import qcore.gmt as gmt
 import qcore.geo as geo
 import numpy as np
+import os
 
 import argparse
 
@@ -10,10 +11,13 @@ parser = argparse.ArgumentParser('csv2grid')
 
 parser.add_argument('csvfile', type=str)
 parser.add_argument('runname', type=str)
+parser.add_argument('output_dir', type=str)
 args = parser.parse_args()
 
 fname = args.csvfile
 run_name = args.run_name
+output_dir = args.output_dir
+temp_dir = os.path.join(output_dir, 'temp')
 
 with open(fname) as f:
     lats = list()
@@ -36,22 +40,23 @@ corners = [corner3, corner1, corner4, corner2]
 region = (corner1[0], corner2[0], corner3[1], corner4[1])
 # region = (166.382450, 174.398790, -46.859300, -40.504500)
 
-mask = 'modelmask.grd'
+mask = os.path.join(output_dir, 'modelmask.grd')
 
 dy = dx = '2k'
 
-geo.path_from_corners(corners= corners, min_edge_points= 100, \
-        output= 'modelpath_hr')
-gmt.grd_mask('modelpath_hr', mask, \
-        dx= dx, dy= dy, region = region)
-print "mask sucess"
+modelmask_path = os.path.join(temp_dir, 'modelpath_hr')
+geo.path_from_corners(corners=corners, min_edge_points=100, output=modelmask_path)
+gmt.grd_mask(modelmask_path, mask, dx=dx, dy=dy, region=region)
+print "mask success"
 
-gmt.table2grd(fname, 'out5.grd', region=region, dx=dx, dy=dy, climit=0.1)
+temp_grid = os.path.join(temp_dir, 'tmp.grd')
+out_grid = os.path.join(temp_dir, 'PAGER_PGV.grd')
+gmt.table2grd(fname, temp_grid, region=region, dx=dx, dy=dy, climit=0.1)
 print "table2grd sucess"
-gmt.grdmath(['out5.grd', mask, 'MUL', 0, 'AND', 0, 'MAX', '=', 'PAGER_PGV.grd'], region=region, dx=dx, dy=dy)
+gmt.grdmath([temp_grid, mask, 'MUL', 0, 'AND', 0, 'MAX', '=', out_grid], region=region, dx=dx, dy=dy)
 
-grd_pgv = h5.File('PAGER_PGV.grd')
-grid_out = 'grid_hazard.xml'
+grd_pgv = h5.File(out_grid)
+grid_out = os.path.join(output_dir, 'grid_hazard.xml')
 #grd_mmi = h5.File('/PAGER_MMI.grd')
 # lat stored min -> max but pager requires top -> bottom
 lons = grd_pgv['lon'][...]
