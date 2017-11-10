@@ -64,7 +64,7 @@ def create_output_path(path, gf_type, realisation=None):
 
 def find_gridfile(path, realisation=None):
     if realisation is not None:
-        gridfile = glob.glob(os.path.join(path, 'GM/Sim/*', realisation, 'grid.xml'))
+        gridfile = glob.glob(os.path.join(path, 'GM/Sim/Data/*', realisation, 'grid.xml'))
     else:
         gridfile = glob.glob(os.path.join(path, 'GM/Sim/*/PNG_tssum/grid.xml'))
         if not check_gridfile(gridfile):
