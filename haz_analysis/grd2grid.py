@@ -10,7 +10,7 @@ import argparse
 parser = argparse.ArgumentParser('csv2grid')
 
 parser.add_argument('csvfile', type=str)
-parser.add_argument('runname', type=str)
+parser.add_argument('run_name', type=str)
 parser.add_argument('output_dir', type=str)
 args = parser.parse_args()
 
