@@ -64,7 +64,9 @@ def create_output_path(path, gf_type, realisation=None):
 
 def find_gridfile(path, realisation=None):
     if realisation is not None:
-        gridfile = glob.glob(os.path.join(path, 'GM/Sim/Data/*', realisation, 'grid.xml'))
+        loc = os.path.join(path, 'GM/Sim/Data/*', realisation, 'grid.xml')
+        print loc
+        gridfile = glob.glob(loc)
     else:
         gridfile = glob.glob(os.path.join(path, 'GM/Sim/*/PNG_tssum/grid.xml'))
         if not check_gridfile(gridfile):
@@ -76,12 +78,25 @@ def find_gridfile(path, realisation=None):
     gridfile = gridfile[0]
     return gridfile
 
+def get_srf_path(base_dir, realisation=None):
+    srf_file = []
+    if realisation is None:
+        srf_file.extend(glob.glob('%s/Src/Model/*/Srf/*.srf' % (base_dir)))
+        srf_file.extend(glob.glob('%s/Src/Model/*/*/Srf/*.srf' % (base_dir)))
+    else:
+        srf_file.extend(glob.glob('%s/Src/Model/*/Srf/%s.srf' % (base_dir, realisation)))
+        
+    return srf_file[0]
 
-def plot(out_dir, xyz_path, run_name, vs30_model, map_type, model, gf_type):
+def plot(out_dir, xyz_path, run_name, vs30_model, map_type, model, gf_type, path=None, realisation=None):
     
     with cd(out_dir):
         print 'Plotting'
-        plot_cmd = "plot_stations.py %s" % xyz_path
+        plot_stations_path = '/home/nesi00213/qcore/plot/plot_stations.py'
+        plot_cmd = "%s \"%s\"" % (plot_stations_path, xyz_path)
+        if map_type == 'probability':
+            srf_path = get_srf_path(path, realisation)
+            plot_cmd += ' --srf %s' % (srf_path,)
         print plot_cmd
         subprocess.call(plot_cmd, shell=True)
 

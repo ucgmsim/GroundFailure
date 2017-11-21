@@ -59,7 +59,7 @@ def __main__():
         print 'Running conversion'
         subprocess.call(process_cmd, shell=True)
         
-        gf_common.plot(out_dir, xyz_path, run_name, "", map_type, "", 'landslide')
+        gf_common.plot(out_dir, xyz_path, run_name, "", map_type, "", 'landslide', path, realisation)
 
 
 __main__()

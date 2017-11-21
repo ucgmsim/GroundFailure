@@ -29,7 +29,7 @@ def create_xyz_name(out_dir, run_name, model, map_type, vs30_model):
          
 path, run_name, realisation = gf_common.get_path_name()
 
-out_dir = gf_common.create_output_path(path, 'liquefaction', realisation)
+out_dir = gf_common.create_output_path(path, 'Liquefaction', realisation)
 
 gridfile = gf_common.find_gridfile(path, realisation)
 
@@ -57,7 +57,7 @@ for config in plot_configs:
     
     xyz_path = create_xyz_name(out_dir, run_name, model, map_type, vs30_model)
     
-    process_cmd = os.path.join(gf_common.sim_workflow_dir  , 'gen_gf_surface.py') + " %s -t %s -o %s" % (h5path, run_name, xyz_path)
+    process_cmd = os.path.join(gf_common.sim_workflow_dir  , 'gen_gf_surface.py') + " \"%s\" -t \"%s\" -o \"%s\"" % (h5path, run_name, xyz_path)
     if model == 'coastal':
         process_cmd += " -m1"
     else:
@@ -74,7 +74,7 @@ for config in plot_configs:
         print "xyz file not found at %s" % xyz_path
         exit()
 
-    gf_common.plot(out_dir, xyz_path, run_name, vs30_model, map_type, model, 'liq')
+    gf_common.plot(out_dir, xyz_path, run_name, vs30_model, map_type, model, 'liq', path, realisation)
 
 
 def normalise(val):

@@ -62,7 +62,7 @@ corners = [corner3, corner1, corner4, corner2]
 region = (corner1[0], corner2[0], corner3[1], corner4[1])
 # region = (166.382450, 174.398790, -46.859300, -40.504500)
 
-mask = os.path.join(output_dir, 'modelmask.grd')
+mask = os.path.join(temp_dir, 'modelmask.grd')
 
 dy = dx = '2k'
 
@@ -78,7 +78,7 @@ print "table2grd sucess"
 gmt.grdmath([temp_grid, mask, 'MUL', 0, 'AND', 0, 'MAX', '=', out_grid], region=region, dx=dx, dy=dy)
 
 grd_pgv = h5.File(out_grid)
-grid_out = os.path.join(output_dir, 'grid_hazard.xml')
+grid_out = os.path.join(output_dir, 'grid.xml')
 #grd_mmi = h5.File('/PAGER_MMI.grd')
 # lat stored min -> max but pager requires top -> bottom
 lons = grd_pgv['lon'][...]
