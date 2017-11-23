@@ -2,6 +2,7 @@ import h5py as h5
 from qcore.shakemap_grid import shakemapGrid
 import qcore.gmt as gmt
 import qcore.geo as geo
+import qcore.timeseries
 import numpy as np
 import os
 
@@ -47,7 +48,7 @@ with open(fname) as f:
     values = list()
 
     for line in f:
-        lon, lat, __ = map(np.float, line.split())
+        lon, lat, ___ = map(np.float, line.split())
         values.append((lon, lat))
 
 values.sort(key=lambda tup: (tup[0], tup[1]))
@@ -107,11 +108,13 @@ pager_grid.write_shakemap_grid_header(event_id, event_type, mag, dep, hlat, hlon
                                       grd_ny)
 for a in xrange(len(lats) - 1, - 1, - 1):
     for b in xrange(len(lons)):
-        if pgvs[a, b] <= 0 and False:
-            pgv = float('nan')
+        pgv = np.float(pgvs[a, b])
+        if pgv <= 0:
+            pgv = float('0')
+            MMI = float('0')
         else:
-            pgv = pgvs[a, b]
-        pager_grid.write('%s %s %s %f\n' \
-                         % (lons[b], lats[a], pgv, 0))
+            MMI = qcore.timeseries.pgv2MMI(pgv)
+        pager_grid.write('%s %s %f %f\n' \
+                         % (lons[b], lats[a], pgv, MMI))
 pager_grid.write_shakemap_grid_footer()
 

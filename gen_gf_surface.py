@@ -81,7 +81,7 @@ with open(fout_name, 'w') as fout:
         if susceptibility:
             fout.write("Susceptbility \n<REPO>/landslide_suc.cpt:topo-grey1,t-30,fixed,categorical 1k:g-nearneighbor,landmask\n-10 0 0.25 2\n")
     if not susceptibility:
-        fout.write("Probability \nhot:topo-grey1,invert,t-30 1k:g-nearneighbor,landmask\n0 1 0.02 0.1\n")
+        fout.write("Probability \nhot:topo-grey1,invert,t-30 1k:g-nearneighbor,landmask\n0 0.6 0.02 0.1\n")
 
     fout.write("1 white\n")
 
