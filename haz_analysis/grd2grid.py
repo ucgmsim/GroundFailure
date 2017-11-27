@@ -27,11 +27,14 @@ def create_dir(directory):
         print 'Not Creating dir %s. Already exists' % (directory)
         pass
 
-parser = argparse.ArgumentParser('csv2grid')
+parser = argparse.ArgumentParser('grd2grid')
 
-parser.add_argument('csvfile', type=str)
-parser.add_argument('run_name', type=str)
-parser.add_argument('output_dir', type=str)
+parser.add_argument('csvfile', type=str, help='Path to csv file containing lon/lat/pgv')
+parser.add_argument('run_name', type=str, help='Name of the rupture - should be unique per simulation')
+parser.add_argument('output_dir', type=str, help='Directory that the output file is written to')
+parser.add_argument('-m', '--magnitude', type=float, help='Moment magnitude of the rupture')
+parser.add_argument('-d', '--depth', type=float, help='Depth of the hypocentre')
+parser.add_argument('-c', '--srf-corners', type=str, help='Path to srf corners file to determine hypocentre location')
 args = parser.parse_args()
 
 fname = args.csvfile
