@@ -85,8 +85,10 @@ def get_srf_path(base_dir, realisation=None):
         srf_file.extend(glob.glob('%s/Src/Model/*/*/Srf/*.srf' % (base_dir)))
     else:
         srf_file.extend(glob.glob('%s/Src/Model/*/Srf/%s.srf' % (base_dir, realisation)))
-        
-    return srf_file[0]
+    if len (srf_file) > 0:
+        return srf_file[0]
+    else:
+        return None
 
 def plot(out_dir, xyz_path, run_name, vs30_model, map_type, model, gf_type, path=None, realisation=None):
     
@@ -96,7 +98,10 @@ def plot(out_dir, xyz_path, run_name, vs30_model, map_type, model, gf_type, path
         plot_cmd = "%s \"%s\"" % (plot_stations_path, xyz_path)
         if map_type == 'probability':
             srf_path = get_srf_path(path, realisation)
-            plot_cmd += ' --srf %s' % (srf_path,)
+            if srf_path is not None:
+                plot_cmd += ' --srf %s' % (srf_path,)
+            else:
+                print "srf file not found; not overlaying fault"
         print plot_cmd
         subprocess.call(plot_cmd, shell=True)
 
