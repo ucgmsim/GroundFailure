@@ -27,6 +27,13 @@ def create_dir(directory):
         print 'Not Creating dir %s. Already exists' % (directory)
         pass
 
+def get_hypocentre_loc(cnrs_file):
+    with open(cnrs_file) as fp:
+        line = fp.readline() # Read header line
+        line = fp.readline()
+        lon, lat = line.split()
+        return lon, lat
+
 parser = argparse.ArgumentParser('grd2grid')
 
 parser.add_argument('csvfile', type=str, help='Path to csv file containing lon/lat/pgv')
@@ -45,7 +52,12 @@ temp_dir = os.path.join(output_dir, 'temp')
 
 mag = args.magnitude
 dep = args.depth
-crns_file = args.srf_corners
+cnrs_file = args.srf_corners
+
+if mag is None:
+    mag = 0.0
+if dep is None:
+    dep = 0.0
 
 create_dir(output_dir)
 create_dir(temp_dir)
@@ -102,7 +114,11 @@ grd_pgv.close()
 event_id = run_name
 event_type = 'SCENARIO'
 
-hlon, hlat = '-43.5704072732', '172.689081167'
+if cnrs_file is not None:
+    hlon, hlat = get_hypocentre_loc(cnrs_file)
+else:
+    hlon = (corner1[0] + corner2[0]) / 2 
+    hlat = (corner3[1] + corner4[1]) / 2
 origin_time = '2017-04-25T13:02:33.631Z'
 x_min = lons[0]
 x_max = lons[-1]
