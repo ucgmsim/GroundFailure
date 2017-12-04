@@ -36,6 +36,7 @@ parser.add_argument('-m', '--magnitude', type=float, help='Moment magnitude of t
 parser.add_argument('-d', '--depth', type=float, help='Depth of the hypocentre')
 parser.add_argument('-c', '--srf-corners', type=str, help='Path to srf corners file to determine hypocentre location')
 args = parser.parse_args()
+print args
 
 fname = args.csvfile
 run_name = args.run_name
@@ -44,7 +45,7 @@ temp_dir = os.path.join(output_dir, 'temp')
 
 mag = args.magnitude
 dep = args.depth
-crns_file = args.srf-corners
+crns_file = args.srf_corners
 
 create_dir(output_dir)
 create_dir(temp_dir)
