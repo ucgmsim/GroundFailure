@@ -119,6 +119,7 @@ if cnrs_file is not None:
 else:
     hlon = (corner1[0] + corner2[0]) / 2 
     hlat = (corner3[1] + corner4[1]) / 2
+    print "putting hypocentre location in the middle of the extent"
 origin_time = '2017-04-25T13:02:33.631Z'
 x_min = lons[0]
 x_max = lons[-1]
