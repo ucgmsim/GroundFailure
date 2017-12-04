@@ -42,6 +42,10 @@ run_name = args.run_name
 output_dir = args.output_dir
 temp_dir = os.path.join(output_dir, 'temp')
 
+mag = args.magnitude
+dep = args.depth
+crns_file = args.srf-corners
+
 create_dir(output_dir)
 create_dir(temp_dir)
 
@@ -96,8 +100,6 @@ grd_pgv.close()
 
 event_id = run_name
 event_type = 'SCENARIO'
-mag = 0
-dep = 0
 
 hlon, hlat = '-43.5704072732', '172.689081167'
 origin_time = '2017-04-25T13:02:33.631Z'
