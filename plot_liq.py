@@ -30,6 +30,7 @@ def create_xyz_name(out_dir, run_name, model, map_type, vs30_model):
 path, run_name, realisation = gf_common.get_path_name()
 
 out_dir = gf_common.create_output_path(path, 'Liquefaction', realisation)
+non_realisation_path = gf_common.create_output_path(path, 'Liquefaction', None)
 
 gridfile = gf_common.find_gridfile(path, realisation)
 
@@ -43,7 +44,7 @@ for config in plot_configs:
     liq_config = 'zhu_2016_%s_%s_%s.ini' % (model, map_type, vs30_model)
     model_dir = os.path.join(gf_common.sim_workflow_dir  , 'liquefaction_model')
     config_dir = os.path.join(gf_common.sim_workflow_dir  , 'config')
-    liq_cmd = "python3 /usr/bin/gfail %s %s -d %s -c %s -o %s --set-bounds 'zoom, pgv, 0' --hdf5" % (liq_config, gridfile, model_dir, config_dir, out_dir)
+    liq_cmd = "python3 /usr/bin/gfail %s %s -d %s -c %s -o %s --set-bounds 'zoom, pgv, 0' --hdf5" % (liq_config, gridfile, model_dir, config_dir, non_realisation_path)
 
     print 'Running liquefaction calculations'
     subprocess.call(liq_cmd, shell=True)

@@ -28,6 +28,7 @@ def __main__():
     path, run_name, realisation = gf_common.get_path_name()
 
     out_dir = gf_common.create_output_path(path, 'landslide', realisation)
+non_realisation_path = gf_common.create_output_path(path, 'Liquefaction', None)
 
     gridfile = gf_common.find_gridfile(path, realisation)
 
@@ -36,7 +37,7 @@ def __main__():
         
         model_dir = os.path.join(gf_common.sim_workflow_dir  , 'landslide_model')
         config_dir = os.path.join(gf_common.sim_workflow_dir  , 'config')
-        ls_cmd = "python3 /usr/bin/gfail %s %s -d %s -c %s -o %s --set-bounds 'zoom, pgv, 0' --hdf5" % (config, gridfile, model_dir, config_dir, out_dir)
+        ls_cmd = "python3 /usr/bin/gfail %s %s -d %s -c %s -o %s --set-bounds 'zoom, pgv, 0' --hdf5" % (config, gridfile, model_dir, config_dir, non_realisation_path)
 
         print 'Running landslide calculations'
         print ls_cmd

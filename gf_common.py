@@ -59,7 +59,7 @@ def check_gridfile(gridfile):
 def create_output_path(path, gf_type, realisation=None):
     if realisation is None:
         realisation = ''
-    return os.path.join(path, 'Impact/', realisation, gf_type)
+    return os.path.join(path, 'Impact/', gf_type, realisation)
 
 
 def find_gridfile(path, realisation=None):
