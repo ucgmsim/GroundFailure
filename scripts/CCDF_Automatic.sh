@@ -10,7 +10,7 @@
 run_dir=$1 #/home/nesi00213/RunFolder/Cybershake/v17p8/Runs - This allows us to change between simulation datasets (eg to v17p9)
 list_runs=`cat $2`
 
-cd /home/fordw/Scripts/CCDF_scripts_and_plots
+cd /home/fordw/GroundFailure/scripts/
 
 for run_name in $list_runs
 do
