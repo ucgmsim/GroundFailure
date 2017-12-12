@@ -31,6 +31,7 @@ parser.add_argument('-l', '--limit', default=float('-inf'), type=float,
 parser.add_argument('-s', '--susceptibility', default=False, action="store_true", help='Changes the plot labels to indicate susceptibility ')
 parser.add_argument('-t', '--title', help='Title for the top of the graph. Defaults to a trimmed run_name')
 parser.add_argument('-o', '--output', default=None, help='sets the name of the output file') 
+parser.add_argument('--keep-nans', action='store_true', help="Keeps the NaN values in the output file")
 
 args = parser.parse_args()
 
@@ -40,6 +41,7 @@ susceptibility = args.susceptibility
 model = args.model
 plot_title = args.title
 fout_name = args.output
+keep_nans = args.keep_nans
 
 is_liq = is_ls = False
 if args.gftype == "liq":
@@ -103,9 +105,9 @@ with open(fout_name, 'w') as fout:
     for i in xrange(len_lon):
         for j in xrange(len(lat)):
             val = values[i][j]
-            if not math.isnan(val) and not math.isinf(val):
-                if val > threshold:
-                    if not is_ls or not susceptibility or val < 0:
+            if keep_nans or (not math.isnan(val) and not math.isinf(val)):
+                if val > threshold or keep_nans:
+                    if not is_ls or not susceptibility or val < 0 or keep_nans:
                         fout.write("%f %f %f\n" % (lat[j], lon[len_lon - i - 1], val))
                         vmax = max(vmax, val)
                         vmin = min(vmin, val)
