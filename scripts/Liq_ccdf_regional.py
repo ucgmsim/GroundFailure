@@ -8,7 +8,7 @@ x-axis is logarithmically scaled. There is a reference line for the area of Stew
 
 Usage: python Liq_ccdf_regional.py "Path to xyz file"
 
-Writes a png of the ccdf to current working directory.
+Writes a png of the ccdf to /Run/Impact/Liquefaction/Realisation/.
 
 This version changes things quite a bit. First there are now functions to help readability and
 to make things easier to work with. Next I switch from using a separate probability list to using
@@ -20,6 +20,8 @@ The big change is that this version begins to work with regions.
 @contact fwa33@canterbury.ac.nz
 '''
 
+import os
+import math
 import argparse
 import urllib
 from geopy import Point
@@ -37,7 +39,7 @@ def getDataLists(xyz):
   
   for line in xyz:
     #Ignores first 6 lines of xyz file
-    if i <6:
+    if i < 6:
       i += 1
     else:
       line = line.split(" ")
@@ -93,6 +95,7 @@ def getFullDB():
 def fillRegionDB(full_db, region_db, lat, lng, prob):
   #Checks for values on land that are not already in the database
   if (lat,lng) not in full_db and prob >= 0.00262:
+    print(prob)
     url = 'https://koordinates.com/services/query/v1/vector.json?key=d5077171350641bdb83afe4c97f3daf6&layer=4240&x=' + lng + '&y=' + lat
     urllib.urlretrieve(url, "region thing")
     filename = open('region thing')
@@ -107,6 +110,7 @@ def fillRegionDB(full_db, region_db, lat, lng, prob):
         region_db.write(lat + ' ' + lng + ' ' + region + '\n')
     #Adds the new data to the dictionary
     full_db[(lat,lng)] = region
+    print(region)
   return full_db
 
 
@@ -214,6 +218,20 @@ parser.add_argument("xyz") #xyz file
 args = parser.parse_args()
 xyz = open(args.xyz)
 
+#The name of the filepath for the xyz file
+filepath = args.xyz.split('/')
+
+#Finding correct directory to save ccdf to
+dir_to_save = ''
+for i in range(len(filepath) - 1):
+  dir_to_save += "/" + filepath[i]
+dir_to_save = dir_to_save.strip('/')
+
+#Finding the type of data used to produce the ccdf
+xyz_name = filepath[-1].split('_')
+data_type = xyz_name[3] + "_" + xyz_name[4] + "_" + xyz_name[5]
+data_type = data_type.strip('-vs30.xyz') 
+
 #Dictionary of all region database data
 full_db = getFullDB()
 
@@ -257,7 +275,7 @@ non_zeroes = []
 
 #Fills the non-zero list by filtering out zero prob points
 for data in data_list:
-  if data[2] < 0.00262:
+  if data[2] < 0.00262 or math.isnan(data[2]):
     zero_total += 1
     cumulat_area -= cell_area
   else:
@@ -269,41 +287,41 @@ non_zeroes.sort(key=lambda a:a[2])
 for point in non_zeroes:
   #Finds the region of the point
   region = local_db[(point[0],point[1])]
-  
+   
   #All points in the very low bin
   if point[2] < 0.05:
     #Adds the probability to the total list and the list for the specific region
     vlow_pts.append(point[2])
     vlow_regions[region].append(point[2])
-    
+     
     #Adds the cumulatative area to the total area list for the bin
     vlow_area.append(cumulat_area)
-    
+     
   #All points in low bin
   elif point[2] < 0.1:
     low_pts.append(point[2])
     low_regions[region].append(point[2])
-    
+     
     low_area.append(cumulat_area)
-  
+   
   elif point[2] < 0.2:
     mod_pts.append(point[2])
     mod_regions[region].append(point[2])
-    
+     
     mod_area.append(cumulat_area)
-    
+     
   elif point[2] < 0.4:
     high_pts.append(point[2])
     high_regions[region].append(point[2])
-    
+     
     high_area.append(cumulat_area)
-    
+     
   else:
     vhigh_pts.append(point[2])
     vhigh_regions[region].append(point[2])
-    
+     
     vhigh_area.append(cumulat_area)
-  
+   
   #Updates the total cumulatative area so that the lists fill up correctly
   cumulat_area -= cell_area
 
@@ -341,7 +359,10 @@ ax1.axvline(x=ref_area, linestyle = '--')
 ax1.text(ref_area + 200, 0.43, 'Stewart Island \n        Area \n (1760 Sq.Km)')
 
 #Titles and labels for this ccdf
-ax1.set_title('Total CCDF')
+run = filepath[-5] + ' '
+model = xyz_name[3] + " model, "
+map_type = xyz_name[5].strip('-vs30.xyz')
+ax1.set_title('Total CCDF for ' + run + "(" + model + map_type + ")")
 ax1.set_ylabel('Liquefaction Probability')
 ax1.set_xlabel('Impacted Area (Sq.Km)')
 
@@ -407,9 +428,7 @@ gs.update(wspace=0.5, hspace=0.5)
 
 fig = plt.gcf()
 
-#Saving ccdf to working directory
-fig.savefig('CCDF with regional subplots.png')
-
+plt.savefig("/" + dir_to_save + "/Regional_CCDF_" + data_type)
 
 #Prints percentage of points that are in each bin
 print('\nTotal points: %d Zero points: %d' % (total_pts, zero_total))
