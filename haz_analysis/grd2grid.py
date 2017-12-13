@@ -101,7 +101,7 @@ out_grid = os.path.join(temp_dir, 'PAGER_PGV.grd')
 int_xyz = os.path.join(temp_dir, 'PAGER_PGV.xyz')
 gmt.table2grd(fname, temp_grid, region=region, dx=dx, dy=dy, climit=0.1)
 print "table2grd sucess"
-gmt.grdmath([temp_grid, mask, 'MUL', 0, 'AND', 0, 'MAX', '=', out_grid], region=region, dx=dx, dy=dy)
+gmt.grdmath([temp_grid, mask, 'MUL', 0, 'AND', 0, 'MAX', '=', out_grid])
 
 lons = set()
 lats = set()
@@ -152,7 +152,7 @@ for datum in data:
     lon, lat, pgv = datum
     if pgv <= 0:
         pgv = float('0')
-        MMI = float('0')
+        MMI = float('1.0')
     else:
         MMI = qcore.timeseries.pgv2MMI(pgv)
     pager_grid.write('%s %s %f %f\n'% (lon, lat, pgv, MMI))
