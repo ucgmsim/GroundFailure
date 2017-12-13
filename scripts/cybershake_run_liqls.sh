@@ -1,10 +1,8 @@
 #!/bin/bash
 
-'''
 # This code steps through each realisation and compiles the liquefaction and landslide information
 # Inputs: 1) A filepath to the runs directory within which each fault is a subfolder
 #         2) A file that contains all the fault names. This will need to be written for each set of cybershake runs (eg. v17p8)
-'''
 
 # Checks if you have enough inputs
 if [[ $# -lt 2 ]]; then
@@ -14,15 +12,15 @@ fi
 
 # Name the inputs
 run_dir=$1 #/home/nesi00213/RunFolder/Cybershake/v17p8/Runs - This allows us to change between simulation datasets (eg to v17p9)
-list_runs=`cat $2` #A relevant list is called list_runs_v17p8 in the run_dir
+list_runs=`cat $2` #A relevant list is called list_runs_v17p8 in the run_dir/../temp
 
-cd /home/nesi00213/dev/post-processing/scripts/ #Allows export_lonlat_pgv2csv.py to run
+cd /home/nesi00213/post-processing/scripts/ #Allows export_lonlat_pgv2csv.py to run
 
-if [ -e $run_dir/completed_liqls.log]; then 
-    completed_liqls_list=`cat $run_dir/completed_liqls.log` #Reads the runs that have been completed for this data set.
+if [ -e $run_dir/../temp/completed_liqls.log]; then 
+    completed_liqls_list=`cat $run_dir/../temp/completed_liqls.log` #Reads the runs that have been completed for this data set.
 else
-    echo > $run_dir/completed_liqls.log
-    completed_liqls_list=`cat $run_dir/completed_liqls.log`
+    echo > $run_dir/../temp/completed_liqls.log
+    completed_liqls_list=`cat $run_dir/../temp/completed_liqls.log`
 fi
 
 for run_name in $list_runs #Picks a fault from the list you input (e.g. AlpineF2K)
@@ -42,6 +40,6 @@ do
     python /home/nesi00213/groundfailure/plot_ls.py $run_dir/$run_name -r $realisation
     #Run the liquefaction calcs
     python /home/nesi00213/groundfailure/plot_liq.py $run_dir/$run_name -r $realisation
-    echo $realisation >> $run_dir/completed_liqls.log #Add the now-completed realisation to the list of completed realisations
+    echo $realisation >> $run_dir/../temp/completed_liqls.log #Add the now-completed realisation to the list of completed realisations
   done
 done

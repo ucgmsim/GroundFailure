@@ -8,13 +8,6 @@ list_runs=`cat $2` #A relevant list is called list_runs_v17p8 in the run_dir
 
 cd /home/nesi00213/dev/post-processing/scripts/ #Allows export_lonlat_pgv2csv.py to run
 
-if [ -e $run_dir/completed_liqls.log]; then 
-    completed_liqls_list=`cat $run_dir/completed_liqls.log` #Reads the runs that have been completed for this data set.
-else
-    echo > $run_dir/completed_liqls.log
-    completed_liqls_list=`cat $run_dir/completed_liqls.log`
-fi
-
 for run_name in $list_runs #Picks a fault from the list you input (e.g. AlpineF2K)
 do
   for realisation_path in `find  $run_dir/$run_name/GM/Validation/ -type d -name ""$run_name"_HYP*"` #Pull out the filepath to the directory for specific realisation of the chosen fault
