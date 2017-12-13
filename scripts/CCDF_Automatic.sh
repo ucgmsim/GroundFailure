@@ -10,15 +10,16 @@
 run_dir=$1 #/home/nesi00213/RunFolder/Cybershake/v17p8/Runs - This allows us to change between simulation datasets (eg to v17p9)
 list_runs=`cat $2`
 
-cd /home/fordw/Scripts/CCDF_scripts_and_plots
+cd /home/fordw/GroundFailure/scripts/
 
 for run_name in $list_runs
 do
     for realisation_path in `find  $run_dir/$run_name/Impact/Liquefaction/ -type d -name ""$run_name"_HYP*"` #Pull out the filepath to the directory for specific realisation of the chosen fault
     do
-    realisation=$(basename $realisation_path) #Pull out the name of the realisation without the rest of the filepath
-    #python Liq_ccdf_regional.py 
-    echo $realisation_path
+    python Liq_ccdf_regional.py $realisation_path/*tal_probability_n*
+    python Liq_ccdf_regional.py $realisation_path/*tal_probability_t*
+    python Liq_ccdf_regional.py $realisation_path/*ral_probability_n*
+    python Liq_ccdf_regional.py $realisation_path/*ral_probability_t*
     done
 done
 
