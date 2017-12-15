@@ -74,7 +74,7 @@ def updateRegionData(full_db, full_data_list):
   
   for data in full_data_list:
     if (data[0],data[1]) not in full_db:
-      print(prob)
+      print(data[2])
       url = 'https://koordinates.com/services/query/v1/vector.json?key=d5077171350641bdb83afe4c97f3daf6&layer=4240&x=' + data[1] + '&y=' + data[0]
       urllib.urlretrieve(url, "New region data")
       filename = open('New region data')
