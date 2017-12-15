@@ -9,23 +9,7 @@ import os
 import argparse
 import errno
 from qcore import shared
-
-def create_dir(directory):
-    """Function to create the Figures dir if it doesn't exist
-    Inputs:
-        parms - the parameters
-    Outputs:
-        None
-    """
-    try:
-        os.makedirs(directory)
-        print 'Creating dir %s ' % (directory)
-    except OSError as exc:
-        if exc.errno != errno.EEXIST:
-            raise
-
-        print 'Not Creating dir %s. Already exists' % (directory)
-        pass
+from qcore.commonPlot import CommonPlot
 
 def get_hypocentre_loc(cnrs_file):
     with open(cnrs_file) as fp:
@@ -65,8 +49,8 @@ if args.dx is None:
 else:
     dy = dx = args.dx
 
-create_dir(output_dir)
-create_dir(temp_dir)
+CommonPlot.create_dir(output_dir)
+CommonPlot.create_dir(temp_dir)
 
 with open(fname) as f:
     lats = list()
