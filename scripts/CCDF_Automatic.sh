@@ -16,10 +16,13 @@ for run_name in $list_runs
 do
     for realisation_path in `find  $run_dir/$run_name/Impact/Liquefaction/ -type d -name ""$run_name"_HYP*"` #Pull out the filepath to the directory for specific realisation of the chosen fault
     do
-    python Liq_ccdf_regional.py $realisation_path/*zhu_2016_coastal_probability_n*
-    python Liq_ccdf_regional.py $realisation_path/*zhu_2016_coastal_probability_t*
-    python Liq_ccdf_regional.py $realisation_path/*zhu_2016_general_probability_n*
-    python Liq_ccdf_regional.py $realisation_path/*zhu_2016_general_probability_t*
+    realisation=$(basename $realisation_path)
+    mkdir $realisation_path/../../Landslide/$realisation/CCDF/ 
+    python working_ccdf_regional.py $realisation_path/*zhu_2016_coastal_probability_n*
+    python working_ccdf_regional.py $realisation_path/*zhu_2016_coastal_probability_t*
+    python working_ccdf_regional.py $realisation_path/*zhu_2016_general_probability_n*
+    python working_ccdf_regional.py $realisation_path/*zhu_2016_general_probability_t*
+    python working_ccdf_regional.py $realisation_path/../../Landslide/$realisation/*probability.xyz 
     done
 done
 
