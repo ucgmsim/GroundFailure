@@ -296,9 +296,6 @@ for data in full_data_list:
     vhigh_area.append(cumulat_area)
     vhigh_prob_dict[region].append(prob)
   
-  if prob > 0.3:
-    print(prob)
-  
   cumulat_area -= cell_area
   
 #Checks for the highest risk bin which has data and then adds the zero point to it. Fills gaps.
@@ -389,10 +386,7 @@ for region in region_list:
 
 #Creates a list of the regions in order of how much area will be impacted.
 most_damaged_regions = []
-print(region_list)
 for region in region_list:
-  print(region)
-  print(vlow_area_dict[region][0])
   most_damaged_regions.append((vlow_area_dict[region][0], region))
 most_damaged_regions.sort()
 
