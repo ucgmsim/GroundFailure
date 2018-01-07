@@ -162,7 +162,7 @@ filepath = args.xyz.split('/')
 if filepath[-3] == 'Liquefaction':
   ZERO_PROB = 0.00262
 elif filepath[-3] == 'Landslide':
-  ZERO_PROB = 0.01 
+  ZERO_PROB = 0.005
 
 #Upper bounds for each bin
 HIGH = 0.4
