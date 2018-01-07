@@ -22,7 +22,7 @@ do
     python working_ccdf_regional.py $realisation_path/*zhu_2016_coastal_probability_t*
     python working_ccdf_regional.py $realisation_path/*zhu_2016_general_probability_n*
     python working_ccdf_regional.py $realisation_path/*zhu_2016_general_probability_t*
-    python working_ccdf_regional.py $realisation_path/../../Landslide/$realisation/*probability.xyz 
+    python working_ccdf_regional.py $run_dir/$run_name/Impact/Landslide/$realisation/*probability.xyz 
     done
 done
 
