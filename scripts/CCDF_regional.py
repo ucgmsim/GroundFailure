@@ -4,9 +4,11 @@ This has been tested on several runs on Hypocentre - mostly on v17p8 data.
 Requires: xyz file of lat/lng and probability data. 
 
 Usage: python CCDF_regional.py /path/to/xyz/file --datatype --title --folder
+Example: python CCDF_regional.py /home/nesi00213/RunFolder/Cybershake/v17p8/Runs/AlpineF2K/Impact/Liquefaction/AlpineF2K_HYP01-03_S1254/AlpineF2K_zhu_2016_coastal_probability_topo-based-vs30.xyz
 
 Optional: 
 --datatype: Used to specify the xyz data as liquefaction or landslide probability data.
+Recognised inputs: liquefaction, liq, landslide, ls
 Example: --datatype liquefaction
 
 --title: The title for the figure.
@@ -60,6 +62,12 @@ MED_REF = 'Stewart\nIsland'
   
 LARGE_AREA = 4940
 LARGE_REF = 'Auckland\nRegion'
+
+#Tracks the area exceeding this probability
+EXCEED = 0.3
+
+#Path to the region database
+REGION_DB = '/home/fordw/GroundFailure/scripts/Region_database.txt'
 
 
 #Checks what kind of data is being plotted. If not specified the script tries
@@ -126,7 +134,7 @@ def getxyzData(xyz, zero_prob):
 #Returns a dictionary of this region data.
 def getRegionData():
   full_db = {}
-  region_db_file = open('Region_database.txt')
+  region_db_file = open(REGION_DB)
   
   for line in region_db_file:
     line = line.split(' ')
@@ -169,7 +177,7 @@ def getCellSize(lat_lng):
   
 #Adds any lat/lng in the xyz file that isn't already in the database to the database
 def updateRegionData(full_db, full_data):
-  region_db_file = open('Region_database.txt', 'a')
+  region_db_file = open(REGION_DB, 'a')
   
   key = 'd5077171350641bdb83afe4c97f3daf6'
   api_url = 'https://koordinates.com/services/query/v1/vector.json?'
@@ -240,15 +248,16 @@ def main():
   full_db = getRegionData()
   
   
-  #Takes xyz file from the argument and turns it into a usable variable
+  #Reads the arguments
   parser = argparse.ArgumentParser()
   parser.add_argument("xyz")
   parser.add_argument('--datatype', nargs = '?', help = 'Specify whether the data is liquefaction (liq) or landslide (ls)')
   parser.add_argument('--title', nargs = '+', help = 'Title for the figure')
   parser.add_argument('--folder', default = 'False', help = 'Add "True" to save figure to same directory as where the xyz is')
   args = parser.parse_args()
-  xyz = open(args.xyz)
   
+  
+  xyz = open(args.xyz)
   
   #Assigns the zero probability and a variable for whether the data is liquefaction
   (zero_prob, isliq, plot_type) = getDataType(args.datatype, args.xyz)
@@ -265,15 +274,6 @@ def main():
   #Get a list of impacted regions
   region_list = getRegionList(full_db, full_data_list)
   
-  #Finds the size of each grid cell
-  cell_area = getCellSize(lat_lng_list)
-  
-  total_cells = len(prob_list)
-  total_area = cell_area * total_cells
-  
-  #Start filling the lists from the very low probability end and so start with max area
-  cumulat_area = total_area
-  
   #Filling the dictionaries with region:list pairs
   for region in region_list:
     vhigh_prob_dict[region] = []
@@ -287,6 +287,20 @@ def main():
     mod_area_dict[region] = []
     low_area_dict[region] = []
     vlow_area_dict[region] = []
+    
+  #Finds the size of each grid cell
+  cell_area = getCellSize(lat_lng_list)
+  
+  total_cells = len(prob_list)
+  total_area = cell_area * total_cells
+  
+  #Start filling the lists from the very low probability end and so start with max area
+  cumulat_area = total_area
+  
+  
+  #Tracks the area exceeding the probability in the EXCEED constant
+  exceed_area = 0
+  exceeded = False
     
   #Loops through the data and fills the probability and area lists. Has checks to fill in data gaps.
   #Fills the probability lists for each region. Areas for the regions are filled in later.
@@ -341,6 +355,12 @@ def main():
       vhigh_prob_dict[region].append(prob)
     
     cumulat_area -= cell_area
+    
+    #Stores area exceeding a certain probability
+    if prob >= EXCEED and not exceeded:
+      exceed_area = cumulat_area
+      exceeded = True
+    
   
   #Checks for the highest risk bin which has data and then adds the zero point to it. Fills gaps.
   if len(vhigh_prob) != 0:
@@ -452,6 +472,7 @@ def main():
   if len(most_damaged_regions) > 1:
     regions_to_plot.append(most_damaged_regions[-2][1])
     
+    
   #Plotting
   fig = plt.figure()
   
@@ -464,7 +485,7 @@ def main():
   #Determining the directory to save the figure to
   xyz_path = args.xyz.split('/')
   if len(xyz_path) == 1:
-    #If xyz is in current working directory
+    #If xyz is in the current working directory
     save_dir = os.getcwd()
   else:
     save_dir = xyz_path[0]
@@ -597,19 +618,22 @@ def main():
   
   #Prints where the file is being saved to
   print
-  if args.folder == 'True':
-    print 'Saving to: ' + save_dir
-  else:
-    if args.folder != 'False':
-      print 'To save the figure to the same directory as where the xyz is located add the "--folder True" argument'
+  if args.folder != 'False' and args.folder != 'True':
+    print 'To save the figure to the same directory as where the xyz is located add the "--folder True" argument'
     save_dir += '/' + 'CCDF'
-    print 'Saving to: ' + save_dir + '/'
+    
     
   #Saves to the correct directory based on the data type
   try:
     plt.savefig(save_dir + file_name)
+    print('Saving to: ' + save_dir)
   except IOError:
     print 'No /CCDF/ directory exists. Please add the directory or add --folder True argument'
     
+  print
+  print 'Area exceeding a probability of ' + str(EXCEED) + ':'
+  print str(exceed_area) + ' Sq.Km'
+  print
+  
 if __name__ == '__main__':
   main()

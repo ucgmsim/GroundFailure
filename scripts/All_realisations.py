@@ -1,3 +1,31 @@
+"""
+This has been tested on v17p8.
+
+Requires: file path to a run on Hypocentre
+
+Note if more than 6 realisations are in the run folder then the figure will default to grey lines with a mean line.
+This is to prevent the legend being too large and covering the plot.
+
+Usage: python All_realisations.py /path/to/run --datatype --grey
+Example: python All_realisations.py /home/nesi00213/RunFolder/Cybershake/v17p8/Runs/AlpineF2K
+
+Optional: 
+--datatype: Used to specify the xyz data as liquefaction or landslide probability data.
+Recognised inputs: liquefaction, liq, landslide, ls
+Example: --datatype liquefaction
+
+--grey: Used to make all lines on the plot grey and to add a black line for the mean of all the realisations.
+Example: --grey grey
+
+Writes a png of the figure to /path/to/xyz/file/dir/CCDF/
+If --folder True then writes a png of the figure to the same directory that the xyz file is in
+
+@date 15/01/2018
+@author Ford Wagner
+@contact fwa33@canterbury.ac.nz
+"""
+
+
 import argparse
 import math
 import os
@@ -10,11 +38,11 @@ import numpy as np
 import glob
 import urllib
 
-#Zero probability cut-offs for the different data-types
+#Zero probability cutoffs for liquefaction and landslide data
 LIQ_ZERO = 0.00262
 LS_ZERO = 0.005
 
-#Path from the folder of the run to the folder of realisations
+#Path from the folder of the run to the folder of the realisations
 LIQ_PATH = '/Impact/Liquefaction/'
 LS_PATH = '/Impact/Landslide/'
 
@@ -22,12 +50,31 @@ LS_PATH = '/Impact/Landslide/'
 LIQ_MODEL = '_zhu_2016_general_probability_nz-specific-vs30.xyz'
 LS_MODEL = '_jessee_2017_probability.xyz'
 
+#Reference line information
+VSMALL_AREA = 290
+VSMALL_REF = 'Wellington\nCity'
+  
+SMALL_AREA = 445
+SMALL_REF = 'Nelson\nRegion'
+  
+MED_AREA = 1760
+MED_REF = 'Stewart\nIsland'
+  
+LARGE_AREA = 4940
+LARGE_REF = 'Auckland\nRegion'
+
+#Region database
+REGION_DB = '/home/fordw/GroundFailure/scripts/Region_database.txt'
+
+#Colours for plotting
+COLOURS = ['#ff0000', '#ff9900', '#ffff00', '#00ff00', '#0000ff', '#ff00ff']
+
 
 #Reads a local file of latitude/longitudes and the associated regions.
 #Returns a dictionary of this region data.
 def getRegionData():
   full_db = {}
-  region_db_file = open('Region_database.txt')
+  region_db_file = open(REGION_DB)
   
   for line in region_db_file:
     line = line.split(' ')
@@ -41,6 +88,7 @@ def getRegionData():
   region_db_file.close()
   
   return full_db
+
 
 #Calculates the area of a grid cell
 def getCellSize(lat_lng):
@@ -56,7 +104,7 @@ def getCellSize(lat_lng):
   return cell_width * cell_height
   
   
-#Returns a list of the regions impacted
+#Returns a list of the regions impacted by a realisation
 def getRegionList(full_db, full_data):
   region_list = []
   for data in full_data:
@@ -68,7 +116,7 @@ def getRegionList(full_db, full_data):
 
 #Adds any lat/lng in the xyz file that isn't already in the database to the database
 def updateRegionData(full_db, full_data):
-  region_db_file = open('Region_database.txt', 'a')
+  region_db_file = open(REGION_DB, 'a')
   
   key = 'd5077171350641bdb83afe4c97f3daf6'
   api_url = 'https://koordinates.com/services/query/v1/vector.json?'
@@ -103,7 +151,7 @@ def updateRegionData(full_db, full_data):
   
 
 def main():
-  #Index for selecting the colour of each line
+  #Index for selecting the colour to plot each realisation
   col_index = 0
   
   #For calculating the upper limit of the x-axis
@@ -127,19 +175,18 @@ def main():
   #Processing the arguments
   parser = argparse.ArgumentParser()
   parser.add_argument('run_path')
-  parser.add_argument('--datatype', default = 'liq')
-  parser.add_argument('--grey', default = 'not grey')
+  parser.add_argument('--datatype', default = 'liq', help = 'Specify whether the data is liquefaction or landslide')
+  parser.add_argument('--grey', default = 'not grey', help = 'Creates a figure of grey lines with a black mean line')
   args = parser.parse_args()
   
   #Determining colours for plotting
   if args.grey == 'grey':
-    colours = ['grey', 'grey', 'grey', 'grey', 'grey', 'grey']
     grey = True
   else:
     if args.grey != 'not grey':
       print('To have grey lines add "grey" argument when calling this script.')
       print('Defaulting to coloured lines...')
-    colours = ['#ff0000', '#ff9900', '#ffff00', '#00ff00', '#0000ff', '#ff00ff']
+    colours = COLOURS
     grey = False
   
   #Checks whether the datatype to plot is liquefaction or landslide and assigns zero probability
@@ -180,8 +227,16 @@ def main():
   #Number of realisations - for calculating average/std dev
   num_realisations = len(realisation_list)
   
+  #If more than 6 realisations then defaults to grey lines (prevents legend issues)
+  if num_realisations > 6:
+    print 'Too many realisations to plot in colour...'
+    print 'Plotting in grey instead'
+    grey = True
+  
   #Variable to check for the first run through the following loop
   first_realisation = True
+  
+  #List to store latitude and longitude data. Only filled once as all realisations have same grid
   lat_lng = []
   
   #Filling out probability lists for each realisation
@@ -226,6 +281,7 @@ def main():
     if first_realisation:
       cell_area = getCellSize(lat_lng)
     
+    #Sorts data lists by probability from low to high
     full_data_list.sort(key=lambda a:a[2])
     prob_dict[realisation].sort()
     
@@ -274,14 +330,14 @@ def main():
         region_area -= cell_area
     
     
-    #If the first model only impacts one region then plots data on one graph
+    #If the first model only impacts one region then figure only shows one plot
     if len(region_list) == 1 and first_realisation:
       ax1 = fig.add_subplot(gs[:,:])
       
-      #Variable to determine how many plots
+      #Variable to determine how many plots to make
       multiple = False
     
-    #If the first model impacts multiple regions then plots the total and the 2 most impacted regions
+    #If the first model impacts multiple regions then figure shows a total plot and subplots for the 2 most impacted regions
     elif first_realisation:
       #Creates a list of the regions in order of how much area will be damaged.
       regions_damaged = []
@@ -289,31 +345,39 @@ def main():
         regions_damaged.append((region_areas[realisation][region][0], region))
       regions_damaged.sort()
       
+      #Traccks the two regions which need plotting
       regions_to_plot = [regions_damaged[-1][1], regions_damaged[-2][1]]
     
-    
+      #Making the subplots
       ax1 = fig.add_subplot(gs[0,:])
-      
       ax2 = fig.add_subplot(gs[1,0])
       ax3 = fig.add_subplot(gs[1,1])
       multiple = True
   
     
-    #Plots the ccdf for the realisation
-    ax1.plot(area_dict[realisation], prob_dict[realisation], color = colours[col_index], label = realisation, zorder = 1)
+    #Plots the total ccdf for the realisation
+    if grey:
+      ax1.plot(area_dict[realisation], prob_dict[realisation], color = 'grey', label = realisation, zorder = 1)
+    else:
+      ax1.plot(area_dict[realisation], prob_dict[realisation], color = colours[col_index], label = realisation, zorder = 1)
         
     if multiple:
-      ax2.plot(region_areas[realisation][regions_to_plot[0]], region_probs[realisation][regions_to_plot[0]], color = colours[col_index], zorder = 1)
+      if grey:
+        ax2.plot(region_areas[realisation][regions_to_plot[0]], region_probs[realisation][regions_to_plot[0]], color = 'grey', zorder = 1)
+      else:
+        ax2.plot(region_areas[realisation][regions_to_plot[0]], region_probs[realisation][regions_to_plot[0]], color = colours[col_index], zorder = 1)
       
-      #If one model only has 1 region impacted then this line will prevent an error
+      #If one model only has 1 region impacted then this line will prevent an error by not trying to plot the second region
       if len(region_list) > 1:
-        ax3.plot(region_areas[realisation][regions_to_plot[1]], region_probs[realisation][regions_to_plot[1]], color = colours[col_index], zorder = 1)
-        
+        if grey:
+          ax3.plot(region_areas[realisation][regions_to_plot[1]], region_probs[realisation][regions_to_plot[1]], color = 'grey', zorder = 1)
+        else:
+          ax3.plot(region_areas[realisation][regions_to_plot[1]], region_probs[realisation][regions_to_plot[1]], color = colours[col_index], zorder = 1)
+          
     #Moves to the next colour
     col_index += 1
     
     first_realisation = False
-    
   
   
   #If grey option selected then this finds the average probability of each realisation
@@ -420,9 +484,9 @@ def main():
           ax3.plot(area_list, upper, color = 'black', linewidth = 1, zorder = 2, linestyle = '--')
           ax3.plot(area_list, lower, color = 'black', linewidth = 1, zorder = 2, linestyle = '--')
     
-  #Titles and labels
+  #Plot labels
   if is_liq:
-    if args.grey != 'grey':
+    if not grey:
       ax1.set_ylabel('Liquefaction\nProbability')
     else:
       ax1.set_ylabel('Liquefaction Probability')
@@ -430,7 +494,7 @@ def main():
       ax2.set_ylabel('Liquefaction Probability')
       ax3.set_ylabel('Liquefaction Probability')
   else:
-    if args.grey != 'grey':
+    if not grey:
       ax1.set_ylabel('Landslide\nProbability')
     else:
       ax1.set_ylabel('Landslide Probability')
@@ -440,6 +504,40 @@ def main():
     
   ax1.set_xlabel('Impacted Area (Sq.Km)')
   
+  #Plots the x-axis on a logarithmic scale
+  ax1.set_xscale('log')
+  ax1.set_xlim((1, max_area))
+  ax1.set_ylim((0,0.65))
+  
+  #Removing ticks from the x-axis
+  ax1.xaxis.set_ticks_position('none')
+  
+  #Removes the top and right edges from the main plot so the reference line text fits
+  ax1.spines['right'].set_visible(False)
+  ax1.yaxis.set_ticks_position('left')
+  ax1.spines['top'].set_visible(False)
+  
+  
+  #Adding a reference line based on the impacted area
+  if max_area > 8500:
+    ax1.axvline(x=LARGE_AREA, linestyle = '--')
+    ax1.text(LARGE_AREA, 0.37, 'Area of the\n' + LARGE_REF + '\n (' + str(LARGE_AREA) + ' Sq.Km)', multialignment = 'center')
+    ref_used = LARGE_AREA
+  elif max_area > 3750:
+    ax1.axvline(x=MED_AREA, linestyle = '--')
+    ax1.text(MED_AREA, 0.37, 'Area of\n' + MED_REF + '\n (' + str(MED_AREA) + ' Sq.Km)', multialignment = 'center')
+    ref_used = MED_AREA
+  elif max_area > 850:
+    ax1.axvline(x=SMALL_AREA, linestyle = '--')
+    ax1.text(SMALL_AREA, 0.37, 'Area of the\n' + SMALL_REF + '\n (' + str(SMALL_AREA) + ' Sq.Km)', multialignment = 'center')
+    ref_used = SMALL_AREA
+  else: 
+    ax1.axvline(x=vsmall_area, linestyle = '--')
+    ax1.text(VSMALL_AREA, 0.37, 'Area of\n' + VSMALL_REF + '\n (' + str(VSMALL_AREA) + ' Sq.Km)', multialignment = 'center')
+    ref_used = VSMALL_AREA
+  
+  
+  #Adds labels, titles, and reference line to sub_plots 
   if multiple:
     ax2.set_xlabel(regions_to_plot[0] + ' Impacted Area (Sq.Km)')
     ax3.set_xlabel(regions_to_plot[1] + ' Impacted Area (Sq.Km)')
@@ -458,24 +556,11 @@ def main():
     ax2.set_title('CCDF for ' + regions_to_plot[0] + ' Region')
     ax3.set_title('CCDF for ' + regions_to_plot[1] + ' Region')
     
-  #Plots the x-axis on a logarithmic scale
-  ax1.set_xscale('log')
-  ax1.set_xlim((1, max_area))
-  ax1.set_ylim((0,0.65))
+    ax2.axvline(x = ref_used, linestyle = '--')
+    ax3.axvline(x = ref_used, linestyle = '--')
   
   
-  
-  #Removing ticks from the x-axis
-  ax1.xaxis.set_ticks_position('none')
-  
-  
-  
-  #Removes the top and right edges from the main plot so the reference line text fits
-  ax1.spines['right'].set_visible(False)
-  ax1.yaxis.set_ticks_position('left')
-  ax1.spines['top'].set_visible(False)
-  
-  #Model details
+  #Model details for the title
   model_details = model.split('_')
   if is_liq:
     model_name = model_details[3] + ' probability, '
@@ -485,20 +570,20 @@ def main():
     model_full = 'Landslide probability ' + model_details[2]
   
   #Setting title based on type of plot requested
-  if args.grey != 'grey':
+  if not grey:
     #Font for the legend
     fontP = FontProperties()
     fontP.set_size('small')
     
     if multiple:
-      #Puts a legend in the lower left corner of the plot
+      #Puts a legend at the top of the plot if plotting in colour
       ax1.legend(loc='upper center', bbox_to_anchor=(0.5, 1.12), ncol = 3, columnspacing = 0.5, prop = fontP)
       
       #Title if doing a colour plot
       ax1.set_title('CCDF for all realisations of ' + run + ' (' + model_full + ')\n')
     
     else:
-      ax1.set_title('CCDF thingy' + '\n' + '(Only the ' + region_list[0] + ' Region Has Been Impacted)')
+      ax1.set_title('CCDF for all realisations of ' + run + '\n' + '(Only the ' + region_list[0] + ' Region Has Been Impacted)')
       
       ax1.legend(loc='upper center', ncol = 2, columnspacing = 0.5, prop = fontP)
       

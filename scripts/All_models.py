@@ -60,12 +60,15 @@ MED_REF = 'Stewart\nIsland'
 LARGE_AREA = 4940
 LARGE_REF = 'Auckland\nRegion'
 
+#Region database
+REGION_DB = '/home/fordw/GroundFailure/scripts/Region_database.txt'
+
 
 #Reads a local file of latitude/longitudes and the associated regions.
 #Returns a dictionary of this region data.
 def getRegionData():
   full_db = {}
-  region_db_file = open('Region_database.txt')
+  region_db_file = open(REGION_DB)
   
   for line in region_db_file:
     line = line.split(' ')
@@ -133,7 +136,7 @@ def getRegionList(full_db, full_data):
 
 #Adds any lat/lng in the xyz file that isn't already in the database to the database
 def updateRegionData(full_db, full_data):
-  region_db_file = open('Region_database.txt', 'a')
+  region_db_file = open(REGION_DB, 'a')
   
   key = 'd5077171350641bdb83afe4c97f3daf6'
   api_url = 'https://koordinates.com/services/query/v1/vector.json?'
@@ -179,7 +182,7 @@ def main():
   full_db = getRegionData()
   
   
-  #Takes the path to the realisation and makes it a usable variable
+  #Processes the arguments
   parser = argparse.ArgumentParser()
   parser.add_argument('xyz_dir', help = 'Directory containing the xyz files')
   parser.add_argument('--title', help = 'Title for the figure', nargs = '+', default = 'None given')
@@ -199,8 +202,6 @@ def main():
   else:
     ccdf_title = ''
     ccdf_title = ' '.join(args.title)
-    #for word in args.title:
-      #ccdf_title += word + ' '
   
   #Finds all files within the realisation's directory
   all_files = glob.glob(args.xyz_dir + '/*')
@@ -225,9 +226,7 @@ def main():
     #Opens the xyz file for the model
     xyz = open(model)
     
-    #Extracts useful data from xyz file: prob_list contains only probabilities
-    #lat_lng contains all latitude/longitudes of the grid in order
-    #full_data contains the lat/lng and its associated probability
+    #Extracts useful data from xyz file
     (prob_list, lat_lng, full_data) = getxyzData(xyz)
     
     #Sorts the data from low to high by probability
@@ -330,7 +329,7 @@ def main():
     
     #No longer the first iteration of the loop
     first_model = False
-      
+  
   
   #Titles and axis labels
   ax1.set_ylabel('Liquefaction probability')
@@ -349,25 +348,24 @@ def main():
   
   if multiple:
     fontP.set_size('small')
-    #Puts a legend in the lower left corner of the plot - small realisations move this
+    #Puts a legend at the top of the plot
     ax1.legend(loc='upper center', bbox_to_anchor=(0.5, 1.12), ncol = 2, prop = fontP)
   
   else:
     fontP.set_size('medium')
-    #Puts a legend in the lower left corner of the plot
     ax1.legend(loc='upper center', ncol = 2, prop = fontP, bbox_to_anchor=(0.5,1.01))
   
   
   #Adding a reference line based on the impacted area
-  if vlow_area[0] > 8500:
+  if max_area > 8500:
     ax1.axvline(x=LARGE_AREA, linestyle = '--')
     ax1.text(LARGE_AREA, 0.3, 'Area of the\n' + LARGE_REF + '\n (' + str(LARGE_AREA) + ' Sq.Km)', multialignment = 'center')
     ref_used = LARGE_AREA
-  elif vlow_area[0] > 3750:
+  elif max_area > 3750:
     ax1.axvline(x=MED_AREA, linestyle = '--')
     ax1.text(MED_AREA, 0.3, 'Area of\n' + MED_REF + '\n (' + str(MED_AREA) + ' Sq.Km)', multialignment = 'center')
     ref_used = MED_AREA
-  elif vlow_area[0] > 850:
+  elif max_area > 850:
     ax1.axvline(x=SMALL_AREA, linestyle = '--')
     ax1.text(SMALL_AREA, 0.3, 'Area of the\n' + SMALL_REF + '\n (' + str(SMALL_AREA) + ' Sq.Km)', multialignment = 'center')
     ref_used = SMALL_AREA
@@ -413,7 +411,7 @@ def main():
   gs.update(wspace=0.5, hspace=0.5)
   fig = plt.gcf()
   
-  #Saving ccdf to the realisation directory
+  #Saving ccdf to the correct directory
   print
   if args.folder == 'True':
     print 'Saving to: ' + args.xyz_dir + '/All_models_CCDF.png'
@@ -422,10 +420,11 @@ def main():
   else:
     if args.folder != False:
       print 'To save figure to same directory as the xyz files add --folder True argument'
-    print 'Saving to: ' + args.xyz_dir + '/CCDF/All_models_CCDF.png'
     print
     try:
       fig.savefig(args.xyz_dir + '/CCDF/All_models_CCDF.png')
+      print 'Saving to: ' + args.xyz_dir + '/CCDF/All_models_CCDF.png'
+      print
     except IOError:
       print "Error: No /CCDF/ directory. Please add the directory or use the --folder True argument"
   
