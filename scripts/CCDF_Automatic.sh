@@ -14,15 +14,29 @@ cd /home/fordw/GroundFailure/scripts/
 
 for run_name in $list_runs
 do
+    mkdir $run_dir/$run_name/Impact/Liquefaction/CCDF/
+    mkdir $run_dir/$run_name/Impact/Landslide/CCDF/
+    
+    python All_realisations.py $run_dir/$run_name
+    python All_realisations.py $run_dir/$run_name --datatype ls
+    python All_realisations.py $run_dir/$run_name --grey grey
+    python All_realisations.py $run_dir/$run_name --datatype ls --grey grey
+    
     for realisation_path in `find  $run_dir/$run_name/Impact/Liquefaction/ -type d -name ""$run_name"_HYP*"` #Pull out the filepath to the directory for specific realisation of the chosen fault
     do
-    realisation=$(basename $realisation_path)
-    mkdir $realisation_path/../../Landslide/$realisation/CCDF/ 
-    python working_ccdf_regional.py $realisation_path/*zhu_2016_coastal_probability_n*
-    python working_ccdf_regional.py $realisation_path/*zhu_2016_coastal_probability_t*
-    python working_ccdf_regional.py $realisation_path/*zhu_2016_general_probability_n*
-    python working_ccdf_regional.py $realisation_path/*zhu_2016_general_probability_t*
-    python working_ccdf_regional.py $run_dir/$run_name/Impact/Landslide/$realisation/*probability.xyz 
+        realisation=$(basename $realisation_path)
+    
+        mkdir $realisation_path/$realisation/CCDF/
+        mkdir $realisation_path/../../Landslide/$realisation/CCDF/
+    
+        python CCDF_regional.py $realisation_path/*zhu_2016_coastal_probability_n*
+        python CCDF_regional.py $realisation_path/*zhu_2016_coastal_probability_t*
+        python CCDF_regional.py $realisation_path/*zhu_2016_general_probability_n*
+        python CCDF_regional.py $realisation_path/*zhu_2016_general_probability_t*
+        python CCDF_regional.py $run_dir/$run_name/Impact/Landslide/$realisation/*probability.xyz 
+    
+        python All_models.py $realisation_path/
+
     done
 done
 
