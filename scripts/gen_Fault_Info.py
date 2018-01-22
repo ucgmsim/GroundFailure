@@ -123,6 +123,7 @@ def loadmsg(targets):
         dbottom = float(db[dbi + 6].split()[0])
         dtop = float(db[dbi + 7].split()[0])
         mag = float(db[dbi + 10].split()[0])
+        rcr_int = float(db[dbi + 10].split()[1])
         pts=[]
         #pts = list(map(float, ll.split()) for ll in db[dbi + 12: dbi + 12 + n_pt])
         for ll in db[dbi + 12: dbi + 12 + n_pt]:
@@ -130,7 +131,7 @@ def loadmsg(targets):
             pts.append(list(map(float,ll.split())))
         # dictionary easy to retrieve, even with future changes
         msgs = {'name': name, 'dip': dip, 'dip_dir': dip_dir, 'rake': rake, \
-                     'dbottom': dbottom, 'dtop': dtop, 'mag': mag, \
+                     'dbottom': dbottom, 'dtop': dtop, 'mag': mag, 'rcr_int': rcr_int, \
                      'n_pt': n_pt, 'points': pts}
         # next fault
         dbi += 13 + n_pt
@@ -143,7 +144,7 @@ def gencsv(names):
         msg = loadmsg(name)
         # print(msg)
         foldername = out_dir+'/website_data/'+run+'/'+name+'/realisation_list.txt'
-        print(foldername)
+        # print(foldername)
         f1=open((foldername),'r')
         namesf=f1.readlines()
         for name1 in namesf:
@@ -156,7 +157,7 @@ def gencsv(names):
           pt = corner[1]
           pt = ('(' + str(pt).strip() + ')')
         # print(msg['points'])
-          fh.write(',' + str(msg['mag']) + ',' + str(msg['dtop']) + ',' + pt + ',' + ',')
+          fh.write(str(msg['mag']) + ',' + str(msg['dtop']) + ',' + pt + ',' + str(msg['rcr_int']))
           corners = getcorners(corner)
           midcor = getmidcor(corners)
           fh = open(os.path.join(out_dir,'website_data',run,name,name1,name1+'-Faultline.csv'), 'w')

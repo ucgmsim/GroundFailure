@@ -1,4 +1,5 @@
 import argparse
+import sys
 
 parser = argparse.ArgumentParser()
 parser.add_argument('realisation')
@@ -30,9 +31,13 @@ for compar in renames:
     realisation[0] = compar[1]
     break
 
-hyp = (realisation[1])[3:4]
+hyp = (realisation[1])[3:5]
 slip = (realisation[2])[1:5]
-hyp = float(hyp)
+try:
+  hyp = float(hyp)
+except ValueError:
+  sys.exit()
+
 slip = float(slip)
 realisation[1] = 'Hypocentre #%.0f' %hyp
 realisation[2] = 'Slip pattern #%.0f' %slip

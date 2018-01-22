@@ -1,16 +1,29 @@
 #!/bin/bash
 
-# Complain to Ford if you have problems
+# This script was written to rename the realisation so that it can be more digestible for the layman
 
-list_runs=`cat $1`
-runs=${2:-v17p8}
-out_dir=${3:-`pwd`}
+# Usage and examples
+#    bash /path/to/script/rename_faults.sh /path/to/fault/list {v17p8/v17p9} /path/to/output/directory/
+#    bash /home/nesi00213/groundfailure/scripts/rename_faults.sh /home/nesi00213/RunFolder/Cybershake/v17p9/temp/list_runs_v17p9 v17p9 /home/lukelongworth/FaultNames
+#    bash /home/nesi00213/groundfailure/scripts/rename_faults.sh /home/nesi00213/RunFolder/Cybershake/v17p8/temp/list_runs_v17p8
 
+# Written by Luke Longworth for use on the USER website on 19/01/2018
+
+# Inputs
+list_runs=`cat $1` # A list of the runs you want to consider
+runs=${2:-v17p8} # v17p8 or v17p9
+out_dir=${3:-`pwd`} # Leave blank for cwd or input a path to the output
+
+# Useful for the loop
+run_dir='/home/nesi00213/RunFolder/Cybershake/'$runs'/Runs'
+
+# Step through the faults one by one
 for run_name in $list_runs
 do
-list_realisations=`cat /home/lukelongworth/website_data/$runs/$run_name/realisation_list.txt` # VERY, VERY, VERY BADLY HARD CODED
-  for realisation in $list_realisations
+  # Step through the realisations one by one. This currently results in a bunch of error messages for v17p9 as there are nested folders that also trigger this
+  for realisation_path in `find  $run_dir/$run_name/GM/Validation/ -type d -name "*HYP*"`
   do
-    python /home/nesi00213/GroundFailure/scripts/rename.py $realisation $runs $out_dir
+    realisation=$(basename $realisation_path)
+    python /home/nesi00213/groundfailure/scripts/rename.py $realisation $runs $out_dir
   done
 done
