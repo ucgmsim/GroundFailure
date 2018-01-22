@@ -8,8 +8,6 @@ import sys
 import argparse
 import os
 
-print "Why won't this print???"
-
 def get_lat(header):
     lat_end_pos = header.index('_')
     return header[3:lat_end_pos].replace('p', '.')
@@ -44,23 +42,22 @@ if args.probabilities == None:
   print("The probabilities value has not been given")
   probs = [0.8, 0.5, 0.25, 0.1, 0.08, 0.06, 0.04, 0.02, 0.01, 0.005]
 else:
-  print("The probabilities value has been given")
+  # print("The probabilities value has been given")
   probs = args.probabilities
   probs = probs.split(',')
   ii = 0
   while ii < len(probs):
-    print(ii)
     probs[ii] = float(probs[ii])
     ii += 1
     
 
-print(inputfile)
-print(input_dir)
-print(output_dir)
-print(type(years))
-print(years)
-print(type(probs[1]))
-print(probs)
+# print(inputfile)
+# print(input_dir)
+# print(output_dir)
+# print(type(years))
+# print(years)
+# print(type(probs[1]))
+# print(probs)
 
 for sProb in probs:
     print("The specific probability is %.4f" % (sProb))
@@ -120,16 +117,10 @@ for sProb in probs:
     fname =  output_dir+'/'+'pgv_%.4f_%.0fy.txt' % (sProb, years)
     
     with open(fname, 'w+') as fw:
-        with open('non_uniform_whole_nz-hh400.ll') as f:
-            for value in values:
+          for value in values:
                 lat, lon, pgv, prob, slope = value
-                f.seek(0)
-                for line in f:
-                    grid_lon, grid_lat, site_name, grid_x, grid_y = line.split()
-                    if find_cart_grid(lat, grid_lat):
-                        if find_cart_grid(lon, grid_lon):
-                            count += 1
-                            fw.write("%s %s %f\n" % (lon, lat, pgv))
+                count += 1
+                fw.write("%s %s %f\n" % (lon, lat, pgv))
                             #print grid_lat, grid_lon, lat, lon, site_name, grid_x, grid_y, pgv, prob, slope
 
                 sys.stderr.write("%d %d\n" % (count, len(values)))
