@@ -47,12 +47,12 @@ def get_run_name(path):
     return os.path.basename(path)
 
 
-def check_gridfile(gridfile):
-    if len(gridfile) > 0 and os.path.exists(gridfile[0]):
-        print "Gridfile found at: %s" % gridfile
+def check_file_exists(file, filetype):
+    if len(file) > 0 and os.path.exists(file[0]):
+        print "%s found at: %s" % (filetype, file)
         return True
     else:
-        print "gridfile not found at: %s" % gridfile
+        print "%s not found at: %s" % (filetype, file)
         return False
 
 
@@ -65,19 +65,34 @@ def create_output_path(path, gf_type, realisation=None):
 def find_gridfile(path, realisation=None):
     if realisation is not None:
         loc = os.path.join(path, 'GM/Sim/Data/*', realisation, 'grid.xml')
-        print loc
         gridfile = glob.glob(loc)
     else:
         gridfile = glob.glob(os.path.join(path, 'GM/Sim/*/PNG_tssum/grid.xml'))
-        if not check_gridfile(gridfile):
+        if not check_file_exists(gridfile, 'gridfile'):
             gridfile = glob.glob(os.path.join(path, 'GM/Sim/*/*/PNG_tssum/grid.xml'))
 
-    if not check_gridfile(gridfile):
+    if not check_file_exists(gridfile, 'gridfile'):
         exit()
 
     gridfile = gridfile[0]
     return gridfile
 
+def find_h5(path):
+	h5path = os.path.join(path, '*.hdf5')
+	print h5path
+	h5file = glob.glob(h5path)
+
+	if not check_file_exists(h5file ,'h5 file'):
+		h5path = os.path.join(path, '*/*.hdf5')
+		print h5path
+		h5file = glob.glob(h5path)
+		
+	if not check_file_exists(h5file ,'h5 file'):
+		exit()
+       
+	h5file = h5file[0]
+	return h5file
+	
 def get_srf_path(base_dir, realisation=None):
     srf_file = []
     if realisation is None:

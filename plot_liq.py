@@ -49,12 +49,7 @@ for config in plot_configs:
     print 'Running liquefaction calculations'
     subprocess.call(liq_cmd, shell=True)
 
-    h5path = glob.glob(os.path.join(out_dir, '*_%s.hdf5'% (model)))[0]
-
-    if not os.path.exists(h5path):
-        print "h5 output not found at %s" % h5path
-        exit()
-    
+    h5path = gf_common.find_h5(out_dir)
     
     xyz_path = create_xyz_name(out_dir, run_name, model, map_type, vs30_model)
     

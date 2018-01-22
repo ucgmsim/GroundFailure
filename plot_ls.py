@@ -43,13 +43,8 @@ def __main__():
         print ls_cmd
         subprocess.call(ls_cmd, shell=True)
         
-        h5path = glob.glob(os.path.join(out_dir, '*.hdf5'))[0]
-
-        if not os.path.exists(h5path):
-            print "h5 output not found at %s" % h5path
-            exit()
-        
-        
+        h5path = gf_common.find_h5(out_dir)
+                
         xyz_path = create_xyz_name(out_dir, run_name, map_type)
         
         process_cmd = os.path.join(gf_common.sim_workflow_dir  , 'gen_gf_surface.py') + " %s -t %s -o %s -type ls" % (h5path, run_name, xyz_path)
