@@ -1,0 +1,538 @@
+Ahuriri River               
+Akatarawa - Otaki Forks     
+Akatore                     
+Albury                      
+Alderman East 01            
+Alderman East 02            
+Alderman East 03            
+Alderman East 04            
+Alderman East 05            
+Alderman East 06            
+Alderman East 07            
+Alderman West 01            
+Alderman West 02            
+Alderman West 03            
+Alderman West 04            
+Alderman West 05            
+Alfredton-Makuri            
+Alpine Fiordland to  Kaniere
+Alpine Kaniere-Tophouse     
+Alpine Resolution           
+Ararata                     
+Aratiatia                   
+Ariel Bank                  
+Ariel East                  
+Ariel North                 
+Ashley                      
+Astrolabe 01                
+Astrolabe 02                
+Astrolabe 03                
+Astrolabe 04                
+Astrolabe 05                
+Astrolabe 06                
+Astrolabe 07                
+Astrolabe 08                
+Awakeri                     
+Awatere NE-Vernon           
+Awatere NE-Vernon-Cloudy    
+Awatere Northeast           
+Awatere Southwest           
+Barefell                    
+Bidwill                     
+Billys Ridge                
+Blue Lake                   
+Blue Mountain               
+Boo Boo All                 
+Boo Boo East                
+Braemar                     
+Brothers                    
+Browning                    
+Brunna Anticline            
+Calypso 02                  
+Calypso 03                  
+Cape Balleny                
+Cape Egmont Central         
+Cape Egmont North           
+Cape Egmont South           
+Cardrona Northwest          
+Cardrona South              
+Carterton                   
+Caswell 211                 
+Caswell High 1              
+Caswell High 10             
+Caswell High 3              
+Caswell High 4              
+Caswell High 5              
+Caswell High 67             
+Caswell High 8              
+Caswell High 9              
+Central Wedge 1 & 2 & 3     
+Central Wedge4-Sth Wedge411 
+Chalky 1 to 3               
+Chalky 4 to 8               
+Cheeseman                   
+Clarence Central            
+Clarence Northeast          
+Clarence Southwest          
+Cust                        
+Dalgety                     
+Domino 02                   
+Double Hill                 
+Dry River-Huangarua         
+Dryburgh                    
+Dunstan                     
+Edgecumbe 1987              
+Edgecumbe Offshore          
+Esk                         
+Feilding Anticline          
+Fern Gully                  
+Fernside F28                
+Fidget                      
+Fiordland Margin 1 & 2      
+Fiordland Subduction Zone 03
+Fiordland Subduction Zone 9
+Fisherman                   
+Five Fingers                
+Fowlers                     
+Fox Peak                    
+Gable End                   
+Galpin                      
+George R1                   
+Gimmerburn                  
+Grandview                   
+Greendale                  
+Hanmer                      
+Harper                      
+Hauroko                     
+Hawke Bay 1                 
+Hawke Bay 2                 
+Hawke Bay 4                 
+Hawke Bay 5 & 11            
+Hawke Bay 6 & 12            
+Hawke Bay 7                 
+Hawke Bay 8                 
+Hikurangi All 
+Hikurangi Hawke Bay Max     
+Hikurangi Hawke Bay Min     
+Hikurangi Raukumara Max     
+Hikurangi Raukumara Min     
+Hikurangi Wellington Max   
+Hikurangi Wellington Min    
+Himatangi Anticline         
+Hokonui                     
+Hollyford                   
+Honeycomb                   
+Hope 1888                   
+Hope Central to West        
+Hope Conway                 
+Hope Conway-Offshore        
+Hope Taramakau              
+Hope-Te Rapa 1 & 2          
+Horohoro                    
+Hororata                    
+Hossack                     
+Houtunui                    
+Hump Ridge                  
+Hundalee                    
+Hunter                      
+Hutt Peel                   
+Hutt Peel North             
+Hyde                        
+Inangahua                   
+Inglewood                   
+Irishman Creek              
+Jordan-Kekerengu-Chancet    
+Jordan-Kekerengu-Needles    
+Kaiapo                      
+Kaingaroa                   
+Kairakau 2                  
+Kairakau North              
+Kairakau South              
+Kaiwara North               
+Kaiwara South               
+Kakapo                      
+Karioi                      
+Kaumingi                    
+Kaweka                      
+Kekerengu - Needles         
+Kekerengu Bank              
+Kelly                       
+Kerepehi Central            
+Kerepehi North              
+Kerepehi Offshore           
+Kerepehi South              
+Kidnappers Ridge            
+Kirkliston                  
+Lachlan 1 & 2               
+Lachlan 3                   
+Lake Heron                  
+Leedstown                   
+Lees Valley                 
+Levin Anticline             
+LindisP                     
+Long Valley                 
+Lowry                       
+Lyell                       
+Madden                      
+Mahia 2                     
+Maimai                      
+Maketu 01                   
+Maketu 02                   
+Maketu 03                   
+Maleme                      
+Mana - Otaheke              
+Mangatete                   
+Marlborough Slope 01        
+Marlborough Slope 02        
+Marlborough Slope 04        
+Marlborough Slope 05        
+Marlborough Slope 09        
+Martinborough               
+Marton Anticline            
+Mascarin 1                  
+Masterton                   
+Mataikona                   
+Mataroa                     
+Matata                      
+Matatara 01                 
+Matatara 02                 
+Matatara 03                 
+Matatara 04                 
+Maungati East 01            
+Maungati West 01            
+Maungati West 02            
+Maungati West 03            
+Milford B1                  
+Milford B5 to George R2     
+Mohaka North                
+Mohaka South                
+Mokonui Northeast           
+Mokonui Southwest           
+Moonlight North             
+Moonlight South             
+Moonshine                   
+Motuhora South 01           
+Motuokura East              
+Motuokura North             
+Motuokura Ridge             
+Moumahaki-Okaia 4           
+Moutoki 01                  
+Moutoki 02                  
+Mt Stewart                  
+Mt White                    
+Napier 1931                 
+National Park               
+Nevis                       
+Ngakuru New                 
+Ngakuru Southwest           
+Ngangiho                    
+Ngapouri                    
+Ngatoro South 01            
+Ngatoro South 02            
+Ngatoro South 03            
+Ngatoro South 04            
+Ngatoro South 05            
+Ngatoro South 06            
+North Branch                
+North Cant Shelf 8 to 10    
+North Canterbury Shelf 1    
+North Canterbury Shelf 10   
+North Canterbury Shelf 11   
+North Canterbury Shelf 13   
+North Canterbury Shelf 2    
+North Canterbury Shelf 4    
+North Mernoo 18 & 19        
+North Mernoo 46 to 47       
+North Mernoo B0             
+North Mernoo B1             
+North Mernoo B2             
+North Mernoo E1             
+North Mernoo E2             
+North Mernoo F1             
+North Mernoo F2             
+North Mernoo K1             
+North Mernoo K2             
+North Mernoo M1 & M2        
+Northern Ohariu             
+Nukuhou 01                  
+Nukumaru-Waitotara 1 to 6   
+Oaonui                      
+Ohae 01                     
+Ohae 02                     
+Ohae 03                     
+Ohakune                     
+Ohakuri                     
+Ohariu Central              
+Ohariu South                
+Ohena 01                    
+Ohena 02                    
+Ohena 03                    
+Ohena 04                    
+Ohiwa 01                    
+Ohiwa North 01              
+Okaia 3                     
+Okaia 5                     
+Okupe                       
+Okurei 01                   
+Okurei 02                   
+Okurei 03                   
+Okurei 04                   
+Okurei 05                   
+Okurei 06                   
+Old Man                     
+Omakere Ridge               
+Omakere South               
+Omihi                       
+Onepoto 1                   
+Opawa                       
+Opotiki 02                  
+Opotiki 03                  
+Opouawe - Uruti             
+Orakeikorako                
+Orakonui                    
+Oruakukuru                  
+Oruawharo                   
+Ostler                      
+Otakiri                     
+Otara East 01               
+Otara East 02               
+Otara East 03               
+Otara East 04               
+Otara East 05               
+Otara East 06               
+Otara West 01               
+Otara West 02               
+Otara West 03               
+Otaraia                     
+Otematata                   
+Otoko -Tototangi F7         
+Pa Valley                   
+Paeroa All                  
+Paeroa Central              
+Paeroa North                
+Paeroa South                
+Pahaua                      
+Pahiatua                    
+Palliser - Kaiwhata         
+Pangopango F29              
+Paoanui Ridge North         
+Paoanui Ridge South         
+Paparoa Rangefront          
+Paritu Ridge                
+Paritu West                 
+Patoka -Rangiora            
+Pegasus 1 Northwest         
+Piripai 01                  
+Pisa                        
+Pohangina Anticline         
+Pokare 01                   
+Pokare 02                   
+Pongaroa-Weber              
+Porangahau Ridge            
+Porangahau West 1           
+Porangahau West 2           
+Poroutawhao                 
+Porters Pass-Grey (longer)  
+Porters Pass-Grey (shorter) 
+Poulter                     
+Poutu                       
+Poverty Bay                 
+Pukehoko North 01           
+Pukehoko North 02           
+Pukerua-Shepherds Gully     
+Puketerata                  
+Quartz Creek                
+Raetihi                     
+Raggedy                     
+Rakaia                      
+Ranfurly                    
+Rangipo All                 
+Rangipo Central             
+Rangipo North               
+Rangipo South               
+Rangitaiki 01               
+Rangitaiki 02               
+Rangitikei                  
+Rangitikei Offshore         
+Raukumara F12               
+Raukumara F15               
+Raukumara F16               
+Raukumara F17               
+Raukumara F18               
+Raukumara F19               
+Raukumara F2                
+Raukumara F21               
+Raukumara F22               
+Raukumara F23               
+Raurimu                     
+Repongaere F4               
+Ridge Road-Okaia 2          
+Ritchie Ridge               
+Ritchie West 1              
+Ritchie West 2              
+Riversdale                  
+Rotoitipakau                
+Ruahine Central             
+Ruahine North               
+Ruahine Reverse             
+Ruahine South               
+Ruataniwha                  
+Ruatoria South 1            
+Ruatoria South 2            
+Saunders-Waipukaka          
+Settlement                  
+Shannon Anticline           
+Shawcroft Road              
+Snowgrass                   
+Solander                    
+South Fiordland Margin 13   
+South Fiordland Margin1 to 9
+South Wedge 1               
+South Wedge 2               
+South Wedge 3               
+South Wedge 5               
+South Wedge 6 to 11         
+Springbank                  
+Springfield                
+Spylaw                      
+Stonewall                   
+Taieri Ridge                
+Taihape                     
+Takitimu 1                  
+Takitimu 2                  
+Tarawera 01                 
+Tarawera 03                 
+Tarawera 04                 
+Tarawera 05                 
+Tauranga 01                 
+Tauranga 02                 
+Tauranga 03                 
+Tauranga 04                 
+Tauranga 05                 
+Tauranga Trough East 01     
+Tauranga Trough East 02     
+Tauranga Trough East 03     
+Tauranga Trough East 04     
+Tauranga Trough East 05     
+Tauranga Trough East 06     
+Tauranga Trough West 01     
+Tauranga Trough West 02     
+Tauranga Trough West 03     
+Tauranga Trough West 04     
+Tauranga Trough West 05     
+Te Anau                     
+Te Arawa 01                 
+Te Arawa 03                 
+Te Weta                     
+Te Whaiti                   
+Thornton 01                 
+Thornton 02                 
+Tokata 01                   
+Torlesse                    
+Treetrunk                   
+Tuaheni Ridge               
+Tuahu                       
+Tuakana 01                  
+Tuakana 02                  
+Tuakana 03                  
+Tuakana 04                  
+Tuakana 05                  
+Tuakana 06                  
+Tuakana 07                  
+Tuakana 08                  
+Tuakana 09                  
+Tuakana 10                  
+Tuakana 11                  
+Tuakana 12                  
+Tuakana 13                  
+Tuatoru 01                  
+Tuatoru 02                  
+Tuatoru 03                  
+Tuhua North 01              
+Tuhua North 02              
+Tuhua North 03              
+Tuhua North 04              
+Tuhua North 05              
+Tuhua South 01              
+Tuhua South 02              
+Tuhua South 03              
+Tukituki Thrust             
+Tumokemoke 01               
+Tumokemoke 02               
+Turi Central                
+Turi North                  
+Turi South                  
+Upper Slope                 
+Urewera 1                   
+Urewera 2                   
+Urewera 3                   
+Uruti Basin                 
+Uruti East                  
+Uruti North                 
+Uruti Ridge 2               
+Volkner 01                  
+Volkner 02                  
+Volkner 03                  
+Volkner 04                  
+Volkner 05                  
+Wahianoa                    
+Waihi East                  
+Waihi South                 
+Waihi West                  
+Waikaremoana                
+Waikaremoana 01             
+Waimana South               
+WaimanaN                    
+Waimarama 1 & 2             
+Waimarama 3 & 4             
+Waimea North                
+Waimea South                
+Waiohau North               
+Waiohau South               
+Waipiata                    
+Waipukurau-Poukawa          
+Waipuna                     
+Wairaka 01                  
+Wairaka 02                  
+Wairaka 03                  
+Wairaka 04                  
+Wairaka 05                  
+Wairaka 06                  
+Wairarapa-Nicholson         
+Wairata                     
+Wairau                      
+Wairoa N                    
+Waitangi                    
+Waitawhiti                  
+Waitohi                     
+Waitotara 10 & 11           
+Waitotara 8 to 9            
+Waverley-Okaia 1            
+Wellington Hutt Valley      
+Wellington Pahiatua         
+Wellington Tararua east     
+Whakaari 01                 
+Whakaari 02                 
+Whakaari 03                 
+Whakaari 04                 
+Whakaipo                    
+Whakatane North             
+Whakatane South             
+Whangamata                  
+Whangamata West             
+Wharanui-Campbell Bank      
+Whareama Bank               
+Wharekauhau Thrust          
+Wheao North                 
+Wheao South                 
+Whirinaki All               
+Whirinaki East              
+Whirinaki West              
+White Creek                 
+White Island 01             
+White Island 03             
+White Island North 01       
+White Island North 02       
+WhiteIsland02               
+Whitemans                   
+Woodville                   
