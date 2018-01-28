@@ -11,7 +11,7 @@
 
 # Inputs
 list_runs=`cat $1` # A list of the runs you want to consider
-runs=${2:-v17p8} # v17p8 or v17p9
+runs=${2:-v17p8} # v17p8 or v17p9, default is v17p8
 out_dir=${3:-`pwd`} # Leave blank for cwd or input a path to the output
 
 # Useful for the loop
@@ -20,10 +20,10 @@ run_dir='/home/nesi00213/RunFolder/Cybershake/'$runs'/Runs'
 # Step through the faults one by one
 for run_name in $list_runs
 do
-  # Step through the realisations one by one. This currently results in a bunch of error messages for v17p9 as there are nested folders that also trigger this
+  # Step through the realisations one by one.
   for realisation_path in `find  $run_dir/$run_name/GM/Validation/ -type d -name "*HYP*"`
   do
-    realisation=$(basename $realisation_path)
-    python /home/nesi00213/groundfailure/scripts/rename.py $realisation $runs $out_dir
+    realisation=$(basename $realisation_path) # Pull out just the realisation name itself as a variable
+    python /home/nesi00213/groundfailure/scripts/rename.py $realisation $runs $out_dir # Run the rename script on the realisation
   done
 done

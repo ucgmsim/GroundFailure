@@ -1,3 +1,17 @@
+'''
+This code produces a csv file that takes an ugly, easy-to-use, official, hard-to-understand realisation description like JorKekNeed_HYP01-03_S1254 and associates it with three strings describing the fault name in layman's terms, the relative hypocentre and slip distribution.
+
+It is automated in /home/nesi00213/groundfailure/scripts/rename_faults.sh
+
+Usage and examples
+python /path/to/script/rename.py 'name of realisation' 'name of run' /path/to/output/directory/
+python /home/nesi00213/groundfailure/scripts/rename.py $realisation $runs $out_dir
+python /home/nesi00213/groundfailure/scripts/rename.py AlpineF2K_HYP01-03_S1254 v17p9 /home/lukelongworth/
+
+Written by Luke Longworth | luke.longworth.nz@gmail.com
+'''
+
+# Initialisation
 import argparse
 import sys
 

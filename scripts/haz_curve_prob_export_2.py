@@ -1,8 +1,17 @@
 """
+Adapted from Jason's code: haz_curve_prob_export.py
 Author-email: jason.motha@canterbury.ac.nz
-This file converts a Hazard file output from either empirical and cybershake into a corresponding output file for a specified probability and year
+Adjusted by luke.longworth.nz@gmail.com
 
+This file converts a Hazard file output from either empirical and cybershake into a corresponding output file for a specified probability and year
+This file is adjusted to have variable inputs and to allow it to be run from any folder
+
+Usage and examples
+python /path/to/script/haz_curve_prob_export_2.py 'name_of_input_file' -i /path/to/input/file/directory -p 'list_of_probabilities' -y '#of years' -o /path/to/output/directory
+python /home/nesi00213/groundfailure/scripts/haz_curve_prob_export_2.py $source_file -i $source_folder -p $probabilities -y $years -o $source_folder/HazMapData
+python /home/nesi00213/groundfailure/scripts/haz_curve_prob_export_2.py HazMapData -i /home/lukelongworth/Data/ -p 0.8,0.5,0.2,0.1,0.005,0.002,0.001 -y 37 -o /home/lukelongworth/
 """
+
 import numpy as np
 import sys
 import argparse
@@ -24,6 +33,7 @@ def find_cart_grid(s1, s2):
     check2 = round(float(s2), 4)
     return check1 == check2
 
+# Add the arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('inputfile', type=str, help='The file on which the script is run')
 parser.add_argument('-i', '--inputdir', default=os.getcwd(), help='Where to find the inputfile')
@@ -39,25 +49,15 @@ output_dir = args.outputdir
 years = float(args.years)
 
 if args.probabilities == None:
-  print("The probabilities value has not been given")
+  print("The probability bins have not been given")
   probs = [0.8, 0.5, 0.25, 0.1, 0.08, 0.06, 0.04, 0.02, 0.01, 0.005]
 else:
-  # print("The probabilities value has been given")
   probs = args.probabilities
   probs = probs.split(',')
   ii = 0
   while ii < len(probs):
     probs[ii] = float(probs[ii])
     ii += 1
-    
-
-# print(inputfile)
-# print(input_dir)
-# print(output_dir)
-# print(type(years))
-# print(years)
-# print(type(probs[1]))
-# print(probs)
 
 for sProb in probs:
     print("The specific probability is %.4f" % (sProb))
@@ -108,7 +108,6 @@ for sProb in probs:
             out = (lat, lon, pgv, prob, slope)
             values.append(out)
 
-    # values.sort(key=lambda tup: (tup[0], tup[1]))
     values.sort()
 
     count = 0
@@ -121,7 +120,6 @@ for sProb in probs:
                 lat, lon, pgv, prob, slope = value
                 count += 1
                 fw.write("%s %s %f\n" % (lon, lat, pgv))
-                            #print grid_lat, grid_lon, lat, lon, site_name, grid_x, grid_y, pgv, prob, slope
 
                 sys.stderr.write("%d %d\n" % (count, len(values)))
 

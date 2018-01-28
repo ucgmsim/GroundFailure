@@ -14,14 +14,18 @@
 run_dir=$1 #/home/nesi00213/RunFolder/Cybershake/v17p8/Runs - This allows us to change between simulation datasets (eg to v17p9)
 list_runs=`cat $2` # A list containing all run (fault) names
 
-cd /home/fordw/Scripts/CCDF_scripts_and_plots/ # This is where we find the other scripts
+cd /home/fordw/Scripts/CCDF_scripts_and_plots/ # This is where we find the other scripts # THIS ALSO NEEDS TO BE REDIRECTED
 
 # The primary loop, going through one fault name at a time
 for run_name in $list_runs
 do
     # Firstly create the relevant folders to save the results to
-    mkdir $run_dir/$run_name/Impact/Liquefaction/CCDF/
-    mkdir $run_dir/$run_name/Impact/Landslide/CCDF/
+    if [ ! -e $run_dir/$run_name/Impact/Liquefaction/CCDF/ ]; then
+      mkdir $run_dir/$run_name/Impact/Liquefaction/CCDF/
+    fi
+    if [ ! -e $run_dir/$run_name/Impact/Landslide/CCDF/ ]; then
+      mkdir $run_dir/$run_name/Impact/Landslide/CCDF/
+    fi
     
     # Then run the script
     # This doesn't need an input of specific realisations so we run it before we get into the secondary for loop
@@ -37,8 +41,12 @@ do
         realisation=$(basename $realisation_path) # This creates a variable with the realisation name (eg AlpineF2K_HYP01-03_S1254)
     
         # Create the relevant output directories
-        mkdir $realisation_path/$realisation/CCDF/
-        mkdir $realisation_path/../../Landslide/$realisation/CCDF/
+        if [ ! -e $realisation_path/$realisation/CCDF/ ]; then
+          mkdir $realisation_path/$realisation/CCDF/
+        fi
+        if [ ! -e $realisation_path/../../Landslide/$realisation/CCDF/ ]; then
+          mkdir $realisation_path/../../Landslide/$realisation/CCDF/
+        fi
     
         # Run the relevant files
         python CCDF_regional.py $realisation_path/*zhu_2016_coastal_probability_n*

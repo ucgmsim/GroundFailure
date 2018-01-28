@@ -1,3 +1,17 @@
+'''
+This script is a modified version of /home/yni23/test.py
+It is modified to work with /home/nesi00213/groundfailure/collate_website.sh
+
+Requires: The Cybershake directory of concern and an output directory
+
+Usage and example:
+python /path/to/script/gen_Fault_info.py 'Name of directory structure' 'output directory'
+python /home/nesi00213/groundfailure/scripts/gen_Fault_Info.py $run $out_dir
+python /home/nesi00213/groundfailure/scripts/gen_Fault_Info.py v17p9 /home/lukelongworth/website_data
+
+Created by Luke Longworth | luke.longworth.nz@gmail.com
+'''
+
 from math import sin, cos, sqrt, atan2, radians
 import os
 import shlex
@@ -10,9 +24,6 @@ args = parser.parse_args()
 
 run = args.run
 out_dir = args.out_dir
-
-print(run)
-print(out_dir)
 
 
 NHM_START=15

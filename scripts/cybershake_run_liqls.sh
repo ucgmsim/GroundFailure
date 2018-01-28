@@ -45,9 +45,9 @@ do
       python export_lonlat_pgv2csv.py $realisation_path/Data/database.json $run_dir/$run_name/GM/Sim/Data/$run_name/$realisation
     fi
     #Produce the grid.xml file
-    mag=`python /home/lukelongworth/GroundFailure/scripts/get_mag.py $realisation_path` # Get the magnitude of the rupture
-    depth=`python /home/lukelongworth/GroundFailure/scripts/get_depth.py $realisation_path` # Get the depth of the rupture
-    corners=`python /home/lukelongworth/GroundFailure/scripts/get_corners.py $run_dir $run_name $realisation` #Get the corners of the surface
+    mag=`python /home/nesi00213/groundfailure/scripts/get_mag.py $realisation_path` # Get the magnitude of the rupture
+    depth=`python /home/nesi00213/groundfailure/scripts/get_depth.py $realisation_path` # Get the depth of the rupture
+    corners=`python /home/nesi00213/groundfailure/scripts/get_corners.py $run_dir $run_name $realisation` #Get the corners of the surface
     python /home/nesi00213/groundfailure/haz_analysis/grd2grid.py $run_dir/$run_name/GM/Sim/Data/$run_name/$realisation/lonlatpgv_*.csv $realisation $run_dir/$run_name/GM/Sim/Data/$run_name/$realisation -m $mag -d $depth -c $corners #Run the script using the default resolution of 2k
     #Run the landslide calcs
     python /home/nesi00213/groundfailure/plot_ls.py $run_dir/$run_name -r $realisation

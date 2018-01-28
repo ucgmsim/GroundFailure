@@ -95,14 +95,14 @@ echo Produced collation
 # Then we tidy up: Rename the graph so we know what it is, and we delete the obsolete csv file
 if [[ $situation == "liq" ]]; then
   awk {'print $1,$2,$3'} $source_folder/final_collation.csv > $source_folder/liq_hazard_prob.csv # Take the first three columns of the data and ignore the rest
-  cat /home/nesi00213/groundfailure/plot_header_liq.txt $source_folder/liq_hazard_prob.csv > $source_folder/liq_hazard_prob.xyz # Add a header for use in plotting
+  cat /home/nesi00213/groundfailure/scripts/Data/plot_header_liq.txt $source_folder/liq_hazard_prob.csv > $source_folder/liq_hazard_prob.xyz # Add a header for use in plotting
   python /home/nesi00213/qcore/plot/plot_stations.py $source_folder/liq_hazard_prob.xyz --out_dir $source_folder # Plot the results
-  mv $source_folder/c000.png $source_folder/liq_hazard_prob.png
+  mv $source_folder/c000.png $source_folder/liq_hazard_prob.png # Tidy the results up (rename the graph and remove the obsolete file)
   rm $source_folder/liq_hazard_prob.csv
 else
   awk {'print $1,$2,$3'} $source_folder/final_collation.csv > $source_folder/ls_hazard_prob.csv # Take the first three columns of the data and ignore the rest
-  cat /home/nesi00213/groundfailure/plot_header_ls.txt $source_folder/ls_hazard_prob.csv > $source_folder/ls_hazard_prob.xyz # Add a header for use in plotting
+  cat /home/nesi00213/groundfailure/scripts/Data/plot_header_ls.txt $source_folder/ls_hazard_prob.csv > $source_folder/ls_hazard_prob.xyz # Add a header for use in plotting
   python /home/nesi00213/qcore/plot/plot_stations.py $source_folder/ls_hazard_prob.xyz --out_dir $source_folder # Plot the results
-  mv $source_folder/c000.png $source_folder/ls_hazard_prob.png
+  mv $source_folder/c000.png $source_folder/ls_hazard_prob.png # Tidy the results up (rename the graph and remove the obsolete file)
   rm $source_folder/ls_hazard_prob.csv
 fi

@@ -1,3 +1,20 @@
+'''
+This script is used within the shell script /home/nes100213/groundfailure/scripts/hazard_prob_plot.sh
+It takes the information generated and outputs new relevant information
+The shell script pipes the output into a new file
+
+The input is a singular input; a list of probabilities.
+These probabilities are an input into the parent shell script in the correct format
+They are input as a string; eg 0.8,0.5,0.1,0.05,0.01
+
+Usage and example:
+python /path/to/script/collate2.py -p 'Probabilities'
+python $source_folder/HazMapData/xyz/collate2.py -p $probabilities
+
+Modified version of collate.py by Jason Motha
+Created by Luke Longworth | luke.longworth.nz@gmail.com
+'''
+# Initialising
 import glob
 import sys
 import argparse
@@ -6,9 +23,19 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-p','--probabilities')
 args = parser.parse_args()
 
-probabilities = args.probabilities
-probabilities = probabilities.split(',')
+# Loading probabilities into the correct format
+probabilities = args.probabilities # eg. probabilities = 0.8,0.5,0.1
+probabilities = probabilities.split(',') # eg. probabilities = ['0.8','0.5','0.1']
 
+i = 0
+for prob in probabilities:
+    probabilities[i] = float(prob)
+    i += 1
+# Now the list entries are floats, not strings
+
+n_probs = len(probabilities)
+
+# Load the relevant files 
 files = glob.glob('*y.txt.xyz')
 # print files
 fs = []
@@ -29,12 +56,6 @@ for file in fs:
   file.readline()
 
 # probabilities = [float(f.split('_')[0].replace('p', '.')) for f in files]
-i = 0
-for prob in probabilities:
-    probabilities[i] = float(prob)
-    i += 1
-
-n_probs = len(probabilities)
 
 #sys.stderr.write(','.join(probabilities) + '\n')
 
