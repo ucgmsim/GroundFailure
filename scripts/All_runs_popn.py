@@ -553,7 +553,6 @@ def makeAllRunsCCDF():
   if len(saving) > 160:
     saving = saving[:150] + '_etc'
   fig.savefig(saving)
-  fig.savefig('All_runs_test')
   print('\nSaving as:\n' + saving + '.png\n')
   
   print 'Maximum' + x_label + ': ' + str(max_x) + '\nDone\n'

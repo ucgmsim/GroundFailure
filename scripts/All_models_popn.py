@@ -463,7 +463,6 @@ def makeAllModelsCCDF():
   gs.update(wspace=0.5, hspace=0.5)
   fig = plt.gcf()
   
-  plt.savefig('Testing_all_models.png')
   plt.savefig(save_dir + file_name)
   print('Filename: \n' + file_name + '\n')
   
