@@ -1,0 +1,1 @@
+magnitude,depth-of-top-of-rupture,hypocentre-coordinates,annual-probability,depth
