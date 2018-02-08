@@ -23,5 +23,6 @@ args = parser.parse_args()
 realisation_path = args.rp
 
 # Open the file and print the contents
-depth = open(realisation_path+"/hypo_depth.txt")
-print depth.readline()
+def depth(realisation_path):
+  depth = open(realisation_path+"/hypo_depth.txt")
+  print depth.readline()

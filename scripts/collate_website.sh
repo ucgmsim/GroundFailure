@@ -19,7 +19,7 @@ fi
 # Create the home folder
 mkdir $out_dir/website_data/
 
-# Get the relevant text file for gen_Fault_Info.txt
+# Get the relevant text file for gen_Fault_Info.py
 cp /home/nesi00213/groundfailure/scripts/Data/NZ_FLTmodel_2010.txt $out_dir 
 
 # Set up the list of different models 
@@ -49,35 +49,97 @@ do
       mkdir $out_dir/website_data/$run/$run_name/$realisation/PNGs/
       mkdir $out_dir/website_data/$run/$run_name/$realisation/videos/
       # Copy the files across. At this stage, the first several files cannot be found reliably and so they are currently copying a placeholder
-      cp /home/lukelongworth/Placeholder.png $out_dir/website_data/$run/$run_name/$realisation/PNGs/MMI.png # cp MMI map
-      cp /home/lukelongworth/Placeholder.png $out_dir/website_data/$run/$run_name/$realisation/PNGs/PGA.png # cp PGA map
-      cp /home/lukelongworth/Placeholder.png $out_dir/website_data/$run/$run_name/$realisation/PNGs/PGV.png # cp PGV map
-      cp /home/lukelongworth/Placeholder.png $out_dir/website_data/$run/$run_name/$realisation/PNGs/PopulationCCDF.png # cp Pop CCDF
-      cp /home/lukelongworth/Placeholder.png $out_dir/website_data/$run/$run_name/$realisation/PNGs/GMTmaps.png # cp GMT maps for everything
-      cp /home/lukelongworth/Placeholder.png $out_dir/website_data/$run/$run_name/$realisation/videos/WaveVideo.mp4 # cp 2D Wave Propagation video
-      cp /home/lukelongworth/Placeholder.png $out_dir/website_data/$run/$run_name/$realisation/PNGs/StateHighwayCCDF.png # cp SH CCDF
-      cp /home/lukelongworth/Placeholder.png $out_dir/website_data/$run/$run_name/$realisation/PNGs/DwellingCCDF.png # cp Dwelling CCDF
-      cp /home/lukelongworth/Placeholder.png $out_dir/website_data/$run/$run_name/$realisation/PNGs/PowerCCDF.png # cp Power Grid CCDF
-      # The next four files check for the file and if it does not exist they also copy the placeholder
+      
+      # MMI
+      if [ -f /home/nesi00213/RunFolder/Cybershake/$run/Runs/$run_name/GM/Validation/$realisation/Data/comparison_plots/nonuniform_plot_comparison_map_MMI_$realisation/c000.png ]; then
+        cp /home/nesi00213/RunFolder/Cybershake/$run/Runs/$run_name/GM/Validation/$realisation/Data/comparison_plots/nonuniform_plot_comparison_map_MMI_$realisation/c000.png $out_dir/website_data/$run/$run_name/$realisation/PNGs/MMI.png
+      else
+        cp /home/nesi00213/groundfailure/scripts/Data/Placeholder.png $out_dir/website_data/$run/$run_name/$realisation/PNGs/MMI.png
+      fi
+    
+    
+      if [ -f $run_dir/$run_name/GM/Validation/$realisation/Data/nonuniform_im_plot_map_$realisation'.xyz' ]; then
+        # PGA
+        name_of_plot=`python /home/nesi00213/groundfailure/scripts/find_plot.py -r $realisation -n 'PGA' -v $run -f $run_name`
+        if [ -f /home/nesi00213/RunFolder/Cybershake/$run/Runs/$run_name/GM/Validation/$realisation/Data/nonuniform_im_plot_map_$realisation/$name_of_plot ]; then
+          cp /home/nesi00213/RunFolder/Cybershake/$run/Runs/$run_name/GM/Validation/$realisation/Data/nonuniform_im_plot_map_$realisation/$name_of_plot $out_dir/website_data/$run/$run_name/$realisation/PNGs/PGA.png
+        else
+          cp /home/nesi00213/groundfailure/scripts/Data/Placeholder.png $out_dir/website_data/$run/$run_name/$realisation/PNGs/PGA.png
+        fi
+        
+        # PGV
+        name_of_plot=`python /home/nesi00213/groundfailure/scripts/find_plot.py -r $realisation -n 'PGV' -v $run -f $run_name`
+        if [ -f /home/nesi00213/RunFolder/Cybershake/$run/Runs/$run_name/GM/Validation/$realisation/Data/nonuniform_im_plot_map_$realisation/$name_of_plot ]; then
+          cp /home/nesi00213/RunFolder/Cybershake/$run/Runs/$run_name/GM/Validation/$realisation/Data/nonuniform_im_plot_map_$realisation/$name_of_plot $out_dir/website_data/$run/$run_name/$realisation/PNGs/PGV.png
+        else
+          cp /home/nesi00213/groundfailure/scripts/Data/Placeholder.png $out_dir/website_data/$run/$run_name/$realisation/PNGs/PGV.png
+        fi
+      else
+        cp /home/nesi00213/groundfailure/scripts/Data/Placeholder.png $out_dir/website_data/$run/$run_name/$realisation/PNGs/PGA.png
+        cp /home/nesi00213/groundfailure/scripts/Data/Placeholder.png $out_dir/website_data/$run/$run_name/$realisation/PNGs/PGV.png
+      fi
+
+      # Liquefaction Population CCDF - currently unverified
+      if [ -f /home/nesi00213/RunFolder/Cybershake/$run/Runs/$run_name/Impact/Liquefaction/$realisation/CCDF/*Population*general_probability_nz-specific-vs30.png ]; then
+        cp /home/nesi00213/RunFolder/Cybershake/$run/Runs/$run_name/Impact/Liquefaction/$realisation/CCDF/*Population*general_probability_nz-specific-vs30.png $out_dir/website_data/$run/$run_name/$realisation/PNGs/LiquefactionPopulationCCDF.png
+      else
+        cp /home/nesi00213/groundfailure/scripts/Data/Placeholder.png $out_dir/website_data/$run/$run_name/$realisation/PNGs/LiquefactionPopulationCCDF.png
+      fi
+      
+      # Landslide Population CCDF - currently unverified
+      if [ -f /home/nesi00213/RunFolder/Cybershake/$run/Runs/$run_name/Impact/Landslide/$realisation/CCDF/*Population*.png ]; then
+        cp /home/nesi00213/RunFolder/Cybershake/$run/Runs/$run_name/Impact/Landslide/$realisation/CCDF/*Population*.png $out_dir/website_data/$run/$run_name/$realisation/PNGs/LandslidePopulationCCDF.png
+      else
+        cp /home/nesi00213/groundfailure/scripts/Data/Placeholder.png $out_dir/website_data/$run/$run_name/$realisation/PNGs/LandslidePopulationCCDF.png
+      fi
+      
+      # Wave Video
+      if [ -f /home/nesi00213/RunFolder/Cybershake/$run/Runs/$run_name/Impact/GM/*.m4v ]; then
+        cp /home/nesi00213/RunFolder/Cybershake/$run/Runs/$run_name/Impact/Liquefaction/$realisation/*c-vs30_probability_general.png $out_dir/website_data/$run/$run_name/$realisation/videos/Wave_Propagation.m4v
+      else
+        cp /home/nesi00213/groundfailure/scripts/Data/Placeholder.png $out_dir/website_data/$run/$run_name/$realisation/videos/Wave_Propagation.m4v
+      fi
+      
+      # Liquefaction Dwelling CCDF - currently unverified
+      if [ -f /home/nesi00213/RunFolder/Cybershake/$run/Runs/$run_name/Impact/Liquefaction/$realisation/CCDF/*Dwellings*general_probability_nz-specific-vs30.png ]; then
+        cp /home/nesi00213/RunFolder/Cybershake/$run/Runs/$run_name/Impact/Liquefaction/$realisation/CCDF/*Dwellings*general_probability_nz-specific-vs30.png $out_dir/website_data/$run/$run_name/$realisation/PNGs/LiquefactionDwellingsCCDF.png
+      else
+        cp /home/nesi00213/groundfailure/scripts/Data/Placeholder.png $out_dir/website_data/$run/$run_name/$realisation/PNGs/LiquefactionDwellingsCCDF.png
+      fi
+      
+      # Landslide Dwelling CCDF - currently unverified
+      if [ -f /home/nesi00213/RunFolder/Cybershake/$run/Runs/$run_name/Impact/Landslide/$realisation/CCDF/*Dwellings*.png ]; then
+        cp /home/nesi00213/RunFolder/Cybershake/$run/Runs/$run_name/Impact/Landslide/$realisation/CCDF/*Dwellings*.png $out_dir/website_data/$run/$run_name/$realisation/PNGs/LandslideDwellingsCCDF.png
+      else
+        cp /home/nesi00213/groundfailure/scripts/Data/Placeholder.png $out_dir/website_data/$run/$run_name/$realisation/PNGs/LandslideDwellingsCCDF.png
+      fi
+
+      # Liquefaction map
       if [ -f /home/nesi00213/RunFolder/Cybershake/$run/Runs/$run_name/Impact/Liquefaction/$realisation/*c-vs30_probability_general.png ]; then
         cp /home/nesi00213/RunFolder/Cybershake/$run/Runs/$run_name/Impact/Liquefaction/$realisation/*c-vs30_probability_general.png $out_dir/website_data/$run/$run_name/$realisation/PNGs/LiquefactionProbability.png
       else
-        cp /home/lukelongworth/Placeholder.png $out_dir/website_data/$run/$run_name/$realisation/PNGs/LiquefactionProbability.png
+        cp /home/nesi00213/groundfailure/scripts/Data/Placeholder.png $out_dir/website_data/$run/$run_name/$realisation/PNGs/LiquefactionProbability.png
       fi
+      
+      # Landslide map
       if [ -f /home/nesi00213/RunFolder/Cybershake/$run/Runs/$run_name/Impact/Landslide/$realisation/*probability_.png ]; then
         cp /home/nesi00213/RunFolder/Cybershake/$run/Runs/$run_name/Impact/Landslide/$realisation/*probability_.png $out_dir/website_data/$run/$run_name/$realisation/PNGs/LandslideProbability.png
       else
-        cp /home/lukelongworth/Placeholder.png $out_dir/website_data/$run/$run_name/$realisation/PNGs/LandslideProbability.png
+        cp /home/nesi00213/groundfailure/scripts/Data/Placeholder.png $out_dir/website_data/$run/$run_name/$realisation/PNGs/LandslideProbability.png
       fi
-      if [ -f /home/nesi00213/RunFolder/Cybershake/$run/Runs/$run_name/Impact/Liquefaction/$realisation/CCDF/Regional*general_probability_nz-specific-vs30.png ]; then
-        cp /home/nesi00213/RunFolder/Cybershake/$run/Runs/$run_name/Impact/Liquefaction/$realisation/CCDF/Regional*general_probability_nz-specific-vs30.png $out_dir/website_data/$run/$run_name/$realisation/PNGs/LiquefactionCCDF.png
+      
+      # Liquefaction Area CCDF
+      if [ -f /home/nesi00213/RunFolder/Cybershake/$run/Runs/$run_name/Impact/Liquefaction/$realisation/CCDF/*Area*general_probability_nz-specific-vs30.png ]; then
+        cp /home/nesi00213/RunFolder/Cybershake/$run/Runs/$run_name/Impact/Liquefaction/$realisation/CCDF/*Area*general_probability_nz-specific-vs30.png $out_dir/website_data/$run/$run_name/$realisation/PNGs/LiquefactionAreaCCDF.png
       else
-        cp /home/lukelongworth/Placeholder.png $out_dir/website_data/$run/$run_name/$realisation/PNGs/LiquefactionCCDF.png
+        cp /home/nesi00213/groundfailure/scripts/Data/Placeholder.png $out_dir/website_data/$run/$run_name/$realisation/PNGs/LiquefactionAreaCCDF.png
       fi
-      if [ -f /home/nesi00213/RunFolder/Cybershake/$run/Runs/$run_name/Impact/Landslide/$realisation/CCDF/*.png ]; then
-        cp /home/nesi00213/RunFolder/Cybershake/$run/Runs/$run_name/Impact/Landslide/$realisation/CCDF/*.png $out_dir/website_data/$run/$run_name/$realisation/PNGs/LandslideCCDF.png
+      
+      # Landslide Area CCDF
+      if [ -f /home/nesi00213/RunFolder/Cybershake/$run/Runs/$run_name/Impact/Landslide/$realisation/CCDF/*Area*.png ]; then
+        cp /home/nesi00213/RunFolder/Cybershake/$run/Runs/$run_name/Impact/Landslide/$realisation/CCDF/*Area*.png $out_dir/website_data/$run/$run_name/$realisation/PNGs/LandslideAreaCCDF.png
       else
-        cp /home/lukelongworth/Placeholder.png $out_dir/website_data/$run/$run_name/$realisation/PNGs/LandslideCCDF.png
+        cp /home/nesi00213/groundfailure/scripts/Data/Placeholder.png $out_dir/website_data/$run/$run_name/$realisation/PNGs/LandslideAreaCCDF.png
       fi
     done
   done
@@ -90,4 +152,4 @@ done
 rm $out_dir/NZ_FLTmodel_2010.txt
 
 cd $out_dir
-zip -r website_data .
+zip -r website_data . >/dev/null

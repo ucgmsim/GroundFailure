@@ -27,7 +27,8 @@ out_dir = args.out_dir
 
 
 NHM_START=15
-NHM='NZ_FLTmodel_2010.txt'
+NHM='/home/nesi00213/groundfailure/scripts/Data/NZ_FLTmodel_2010.txt'
+
 
 
 def getmidcor(corners):
@@ -135,13 +136,15 @@ def loadmsg(targets):
         dtop = float(db[dbi + 7].split()[0])
         mag = float(db[dbi + 10].split()[0])
         rcr_int = float(db[dbi + 10].split()[1])
+        anl_prb = 1/rcr_int
+        
         pts=[]
         #pts = list(map(float, ll.split()) for ll in db[dbi + 12: dbi + 12 + n_pt])
         for ll in db[dbi + 12: dbi + 12 + n_pt]:
             #print( )
             pts.append(list(map(float,ll.split())))
         # dictionary easy to retrieve, even with future changes
-        msgs = {'name': name, 'dip': dip, 'dip_dir': dip_dir, 'rake': rake, \
+        msgs = {'name': name, 'anl_prb': anl_prb, 'dip': dip, 'dip_dir': dip_dir, 'rake': rake, \
                      'dbottom': dbottom, 'dtop': dtop, 'mag': mag, 'rcr_int': rcr_int, \
                      'n_pt': n_pt, 'points': pts}
         # next fault
@@ -162,13 +165,18 @@ def gencsv(names):
           name1 = name1.strip()
           fh = open(os.path.join(out_dir,'website_data',run,name,name1,name1+'-Faultinfo.csv'), 'w')
           fh1 = open(os.path.join(os.path.sep,'home','nesi00213','RunFolder','Cybershake',run,'Runs',name,'GM','Sim','Data',name,name1, 'corners.txt'), 'r')
+          fh2 = open(os.path.join(os.path.sep,'home','nesi00213','RunFolder','Cybershake',run,'Runs',name,'GM','Validation',name1,'hypo_depth.txt'), 'r')
+          fh3 = open(os.path.join(os.path.sep,'home','nesi00213','groundfailure','scripts','Data','Fault_Info_Header.txt'),'r')
         #fh1 = open(os.path.join(name, 'corners.txt'), 'r')
           corner = fh1.readlines()
+          depth = fh2.read()
+          header = fh3.read()
         #print(corner)
           pt = corner[1]
           pt = ('(' + str(pt).strip() + ')')
+          
         # print(msg['points'])
-          fh.write(str(msg['mag']) + ',' + str(msg['dtop']) + ',' + pt + ',' + str(msg['rcr_int']))
+          fh.write(header + str(msg['mag']) + '\n' + str(msg['dtop']) + '\n' + pt + '\n' + str(msg['anl_prb']) + '\n' + depth)
           corners = getcorners(corner)
           midcor = getmidcor(corners)
           fh = open(os.path.join(out_dir,'website_data',run,name,name1,name1+'-Faultline.csv'), 'w')
