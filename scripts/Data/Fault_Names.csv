@@ -1,40 +1,50 @@
-Albury,Albury
-AlpineF2K,Alpine Fiordland to Kaniere
-AlpineK2T,Alpine Kaniere to Tophouse
-Ashley,Ashley
-AwatereNE,Awatere Northeast
-AwatereSW,Awatere Southwest
-AwatNEVer,Awatere Northeast-Vernon
-AwatNEVerCl,Awatere Northeast-Vernon-Cloudy
-Barefell,Barefell
-Brothers,Brothers
-Browning,Browning
-BrunAnt,Brunna Anticline
-Cheeseman,Cheeseman
-ClarenceCentr,Clarence Central
-ClarenceNE,Clarence Northeast
-ClarenceSW,Clarence Southwest
-Cust,Cust
-Dalgety,Dalgety
-DoubleHill,Double Hill
-Esk,Esk
-Fidget,Fidget
-Fowlers,Fowlers
-FoxPk,Fox Peak
-Hanmer,Hanmer
-Harper,Harper
-Hope1888,Hope 1888
-HopeConway,Hope Conway
-HopeConwayOS,Hope Conway-Offshore
-HopeCW,Hope Central-West
-HopeTARA,Hope Taramakau
-HopeTeRapa1n2,Hope Te Rapa 1 & 2
-Hororata,Hororata
-Hundalee,Hundalee
-Hunter,Hunter
-HuttPeelNorth,Hutt Peel (North)
-HuttPeelSouth,Hutt Peel
-Inangahua,Inangahua
-IrishmanC,Irishman Creek
-JorKekCha,Jordan-Kekerengu-Chancet
-JorKekNeed,Jordan-Kekerengu-Needles
+Albury,Albury Fault
+AlpineF2K,Alpine Fault (Fiordland to Kaniere)
+AlpineK2T,Alpine Fault (Kaniere to Tophouse)
+Ashley,Ashley Fault
+AwatereNE,Awatere Fault (Northeast Segment)
+AwatereSW,Awatere Fault (Southwest Segment)
+AwatNEVer,Awatere Fault (Northeast Segment to Vernon Fault)
+AwatNEVerCl,Awatere Fault (Northeast Segment to Vernon Fault to Cloudy Fault)
+Barefell,Barefell Fault
+Brothers,Brothers Fault
+Browning,Browning Fault
+BrunAnt,Brunna Anticline Fault
+Cheeseman,Cheeseman Fault
+ClarenceCentr,Clarence Fault (Central Segment)
+ClarenceNE,Clarence Fault (Northeast Segment)
+ClarenceSW,Clarence Fault (Southwest Segment)
+Cust,Cust Fault
+Dalgety,Dalgety Fault
+DoubleHill,Double Hill Fault
+Esk,Esk Fault
+Fidget,Fidget Fault
+Fowlers,Fowlers Fault
+FoxPk,Fox Peak Fault
+Hanmer,Hanmer Fault
+Harper,Harper Fault
+Hope1888,Hope Fault (1888 Earthquake Segment)
+HopeConway,Hope Fault (Conway Segment)
+HopeConwayOS,Hope Fault (Conway Segment to Offshore)
+HopeCW,Hope Fault (Central Segment to West Segment)
+HopeTARA,Hope Fault (Taramakau Segment)
+HopeTeRapa1n2,Hope Fault (Te Rapa 1 & 2)
+Hororata,Hororata Fault
+Hundalee,Hundalee Fault
+Hunter,Hunter Fault
+HuttPeelNorth,Hutt Peel Fault (North Segment)
+HuttPeelSouth,Hutt Peel Fault (South Segment)
+Inangahua,Inangahua Fault
+IrishmanC,Irishman Creek Fault
+JorKekCha,Jordan Thrust to Kekerengu Fault to Chancet Fault
+JorKekNeed,Jordan Thrust to Kekerengu Fault to Needles Fault
+Kirkliston,Kirkliston Fault
+LeesV,Lees Valley Fault
+LkHeron,Lake Heron Fault
+MtWhite,Mt White Fault
+NorthBranch,North Branch Fault
+Omihi,Omihi Fault
+Opawa,Opawa Fault
+Pegasus1nw,Pegasus Fault (Northwest Segment)
+Port2GreyL,Porters Pass Fault to Grey Fault (Longer)
+Port2GreyS,Porters Pass Fault to Grey Fault (Shorter)
