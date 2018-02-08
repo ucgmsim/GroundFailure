@@ -1,6 +1,8 @@
 '''
 This script is used within the shell script /home/nes100213/groundfailure/scripts/hazard_prob_plot.sh
-It takes the information generated and outputs new relevant information
+It only works within context of this shell script, as it must be in a folder containing files generated in that script
+It does not make sense to run this script in isolation
+Pay close attention to the structure of the probabilities input, it is quite specific
 The shell script pipes the output into a new file
 
 The input is a singular input; a list of probabilities.
