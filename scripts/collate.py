@@ -1,8 +1,6 @@
 '''
 This script is used within the shell script /home/nes100213/groundfailure/scripts/hazard_prob_plot.sh
-It only works within context of this shell script, as it must be in a folder containing files generated in that script
-It does not make sense to run this script in isolation
-Pay close attention to the structure of the probabilities input, it is quite specific
+It takes the information generated and outputs new relevant information
 The shell script pipes the output into a new file
 
 The input is a singular input; a list of probabilities.
@@ -20,66 +18,51 @@ Created by Luke Longworth | luke.longworth.nz@gmail.com
 import glob
 import sys
 import argparse
-
-parser = argparse.ArgumentParser()
-parser.add_argument('-p','--probabilities')
-args = parser.parse_args()
-
-# Loading probabilities into the correct format
-probabilities = args.probabilities # eg. probabilities = 0.8,0.5,0.1
-probabilities = probabilities.split(',') # eg. probabilities = ['0.8','0.5','0.1']
-
-i = 0
-for prob in probabilities:
-    probabilities[i] = float(prob)
-    i += 1
-# Now the list entries are floats, not strings
-
-n_probs = len(probabilities)
+import itertools
 
 # Load the relevant files 
 files = glob.glob('*y.txt.xyz')
-# print files
 fs = []
 
+#sorts the files with the largest probability first
 files.sort(reverse=True)
 
-for file in files:
-  #print(file)
-  fs.append(open(file))
-  
-for file in fs:
-  file.readline()
-  file.readline()
-  file.readline()
-  file.readline()
-  file.readline()
-  file.readline()
-  file.readline()
+#extracts probabilities from filename
+probabilities = [float(f.split('_')[1].replace('p', '.')) for f in files]
+n_probs = len(probabilities)
 
-# probabilities = [float(f.split('_')[0].replace('p', '.')) for f in files]
+fs = [open(f) for f in files]
 
-#sys.stderr.write(','.join(probabilities) + '\n')
+#skips the headers for all of the files
+for f in fs:
+  f.readline()
+  f.readline()
+  f.readline()
+  f.readline()
+  f.readline()
+  f.readline()
+  f.readline()
 
 n_lines = 0
 discrepancy_count = 0
 prev_lat = 0
 prev_lon = 0
 
-while 1:
+for lines in itertools.izip(*fs):
   probs = []
   prob_sum = 0
   i = 0
   n_lines += 1
   
-  for f in fs:
-    a = f.readline()
-    lon, lat, liq_prob = a.split()
+  for line in lines:
+    lon, lat, liq_prob = line.split()
     
     liq_prob = float(liq_prob)
+    # find indexes of probabilities from file order
     i1 = min(i, n_probs-2)
     i2 = min(i+1, n_probs - 1)
     delta_haz = probabilities[i1] - probabilities[i2]
+    
     prob_sum += delta_haz * liq_prob 
     probs.append(liq_prob)
     #print delta_haz, liq_prob
@@ -91,4 +74,9 @@ while 1:
     prev_lat = lat
     prev_lon = lon
   print lon, lat, prob_sum, ' '.join(map(str, probs))
-  sys.stderr.write('lines: %d discrepancies: %d\n' % (n_lines, discrepancy_count-n_lines))
+  # sys.stderr.write('lines: %d discrepancies: %d\n' % (n_lines, discrepancy_count-n_lines))
+    
+if discrepancy_count-n_lines > 0:
+    sys.stderr.write("There has been an error in the compilation please check files are of same length")
+
+
