@@ -16,6 +16,8 @@ import numpy as np
 import sys
 import argparse
 import os
+from qcore.commonPlot import CommonPlot
+
 
 def get_lat(header):
     lat_end_pos = header.index('_')
@@ -47,6 +49,10 @@ inputfile = args.inputfile
 input_dir = args.inputdir
 output_dir = args.outputdir
 years = float(args.years)
+
+pgv_plot_path = os.path.join(output_dir, 'pgv_plots')
+CommonPlot.create_dir(output_dir)
+CommonPlot.create_dir(pgv_plot_path)
 
 if args.probabilities == None:
   print("The probability bins have not been given")
@@ -113,13 +119,18 @@ for sProb in probs:
     count = 0
     ncount = 0
 
-    fname =  output_dir+'/'+'pgv_%.4f_%.0fy.txt' % (sProb, years)
+    fname_txt = os.path.join(output_dir, 'pgv_%.4f_%.0fy.txt' % (sProb, years))
+    fname_xyz = os.path.join(pgv_plot_path, 'pgv_%.4f_%.0fy.xyz' % (sProb, years))
     
-    with open(fname, 'w+') as fw:
-          for value in values:
-                lat, lon, pgv, prob, slope = value
-                count += 1
-                fw.write("%s %s %f\n" % (lon, lat, pgv))
+    
+    with open(fname_xyz, 'w') as fw1, open(fname_txt, 'w') as fw2:
+        fw1.write('\nEmpirical PGV for %.4f over %.0fy\n' % (sProb, years))
+        fw1.write('hot-karim:invert,t-30 1k:g-nearneighbor,nns-9k,landmask\n\n1 black\n\n')
+        for value in values:
+            lat, lon, pgv, prob, slope = value
+            count += 1
+            fw1.write("%s %s %f\n" % (lon, lat, pgv))
+            fw2.write("%s %s %f\n" % (lon, lat, pgv))
 
-                sys.stderr.write("%d %d\n" % (count, len(values)))
+            sys.stderr.write("%d %d\n" % (count, len(values)))
 
