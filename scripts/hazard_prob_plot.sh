@@ -10,15 +10,10 @@
 
 # Other $5 config files you can choose are:
 #    jessee_2017_probability.ini
-#    jessee_2017_susceptibility.ini
 #    zhu_2016_coastal_probability_nz-specific-vs30.ini
 #    zhu_2016_coastal_probability_topo-based-vs30.ini
-#    zhu_2016_coastal_susceptibility_nz-specific-vs30.ini
-#    zhu_2016_coastal_susceptibility_topo-based-vs30.ini
 #    zhu_2016_general_probability_nz-specific-vs30.ini
 #    zhu_2016_general_probability_topo-based-vs30.ini
-#    zhu_2016_general_susceptibility_nz-specific-vs30.ini
-#    zhu_2016_general_susceptibility_topo-based-vs30.ini
 # With the jessee model being landslide and the zhu model being liquefaction
 
 # This script was written by Luke Longworth in December 2017
@@ -45,7 +40,7 @@ mkdir $source_folder/HazMapData/xyz
 # This step reads the data from the source file and organises it into a neat, easy to digest format.
 # Each probability outlined above will produce an individual .txt file
 cd $source_folder
-python /home/nesi00213/groundfailure/scripts/haz_curve_prob_export_2.py $source_file -i $source_folder -p $probabilities -y $years -o $source_folder/HazMapData
+python /home/nesi00213/groundfailure/scripts/haz_curve_prob_export.py $source_file -i $source_folder -p $probabilities -y $years -o $source_folder/HazMapData
 echo The .txt files have been produced from the master file $source_file
 
 cd HazMapData
@@ -80,11 +75,9 @@ done
 # Clean up the folder by removing the last grid.xml file that didn't get saved over
 rm $source_folder/HazMapData/grids/grid.xml
 
-# collate2.py needs to be in the right folder to work, so we first copy it across, then remove it after it has been run
-cp /home/nesi00213/groundfailure/scripts/collate2.py $source_folder/HazMapData/xyz/ 
-cd $source_folder/HazMapData/xyz/
-python $source_folder/HazMapData/xyz/collate2.py -p $probabilities > $source_folder/final_collation.csv # Pipe the output into a file in the output directory
-rm $source_folder/HazMapData/xyz/collate2.py
+# jollate all of the probability files together and integrate them.
+python /home/nesi00213/groundfailure/scripts/collate.py -i $source_folder -o $source_folder/final_collation.csv # output into a file in the output directory
+
 echo Produced collation
 
 # Now plot it using plot_stations.py

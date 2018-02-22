@@ -17,12 +17,23 @@ Created by Luke Longworth | luke.longworth.nz@gmail.com
 # Initialising
 import glob
 import sys
+import os
 import argparse
 import itertools
 
+parser = argparse.ArgumentParser()
+parser.add_argument('-i', '--inputdir', default=os.getcwd(), help='Directory that contains the probability xyz files')
+parser.add_argument('-o', '--outputfile', default=os.getcwd(), help='The path to the output-file to be created')
+
+args = parser.parse_args()
+
+input_filenames = os.path.join(args.inputdir, '*y.txt.xyz')
+
 # Load the relevant files 
-files = glob.glob('*y.txt.xyz')
+files = glob.glob(input_filenames)
 fs = []
+
+out_f = open(args.outputfile, 'w')
 
 #sorts the files with the largest probability first
 files.sort(reverse=True)
@@ -68,15 +79,14 @@ for lines in itertools.izip(*fs):
     #print delta_haz, liq_prob
     
     i += 1
-    #print lon, lat, ', '.join(probs)
     if prev_lat != lat or prev_lon != lon:
       discrepancy_count += 1
     prev_lat = lat
     prev_lon = lon
-  print lon, lat, prob_sum, ' '.join(map(str, probs))
+  out_f.write('%s %s %s %s\n' % (lon, lat, prob_sum, ' '.join(map(str, probs))))
   # sys.stderr.write('lines: %d discrepancies: %d\n' % (n_lines, discrepancy_count-n_lines))
     
-if discrepancy_count-n_lines > 0:
-    sys.stderr.write("There has been an error in the compilation please check files are of same length")
+if discrepancy_count - n_lines > 0:
+    sys.stderr.write("There has been an error in the collation; please check files are of same length")
 
 
