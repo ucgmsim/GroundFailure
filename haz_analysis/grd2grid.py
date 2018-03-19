@@ -1,3 +1,8 @@
+"""
+Converts a csv of lon lat pgv into a grid.xml file that can be used by
+the groundfailure workflow (landslide, liquefaction, PAGER)
+"""
+
 import h5py as h5
 from qcore.shakemap_grid import shakemapGrid
 import qcore.gmt as gmt

@@ -12,6 +12,7 @@ from contextlib import contextmanager
 import subprocess
 
 sim_workflow_dir = "/home/nesi00213/groundfailure"
+plot_stations_path = 'plot_stations.py'
 
 model_list = ('general', 'coastal')
 map_type_list = ('probability', 'susceptibility')
@@ -109,7 +110,6 @@ def plot(out_dir, xyz_path, run_name, vs30_model, map_type, model, gf_type, path
     
     with cd(out_dir):
         print 'Plotting'
-        plot_stations_path = '/home/nesi00213/qcore/plot/plot_stations.py'
         plot_cmd = "%s \"%s\"" % (plot_stations_path, xyz_path)
         if map_type == 'probability':
             srf_path = get_srf_path(path, realisation)
