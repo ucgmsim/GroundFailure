@@ -39,7 +39,7 @@ out_f = open(args.outputfile, 'w')
 files.sort(reverse=True)
 
 #extracts probabilities from filename
-probabilities = [float(f.split('_')[1].replace('p', '.')) for f in files]
+probabilities = [float(os.path.basename(f).split('_')[1].replace('p', '.')) for f in files] #extracts the probability from the filename as a float
 n_probs = len(probabilities)
 
 fs = [open(f) for f in files]

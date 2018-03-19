@@ -23,7 +23,7 @@ source_folder=$1 #"/home/lukelongworth"
 source_file=$2 # "HazCurveResults.txt" Should be in source_folder
 years=${3:-50.0} # 50
 probabilities=${4:-0.8,0.5,0.25,0.1,0.08,0.06,0.04,0.02,0.01,0.005} #0.8,0.5,0.25,0.1,0.08,0.06,0.04,0.02,0.01,0.005
-ini=${5:-zhu_2016_general_probability_nz-specific-vs30.ini} #This enables you to change the config file to use different liquefaction models or switch to landslide
+ini=${5:-jessee_2017_probability.ini} #This enables you to change the config file to use different liquefaction models or switch to landslide
 
 # Check whether we are dealing with liquefaction or landslides
 if [[ $ini == *"zhu"* ]]; then
@@ -50,7 +50,7 @@ for f in pgv_*.txt
 do
   echo Take $f as the probability
   # Take this .txt file and runs grd2grid.py
-  python /home/nesi00213/groundfailure/haz_analysis/grd2grid.py $source_folder/HazMapData/$f $f $source_folder/HazMapData/grids/
+  python /home/nesi00213/dev/groundfailure/haz_analysis/grd2grid.py $source_folder/HazMapData/$f $f $source_folder/HazMapData/grids/
   echo produced the grid.xml file
 
   # The configuration file we need is different based on whether it is liquefaction or landslide
@@ -63,7 +63,7 @@ do
   echo produced the h5 files
   
   # Run gen_gf_surface.py on the h5 files
-  python /home/nesi00213/groundfailure/gen_gf_surface.py -t '' -o $source_folder/HazMapData/xyz/$f.xyz $source_folder/HazMapData/grids/$f/*.hdf5 --keep-nans
+  python /home/nesi00213/groundfailure/gen_gf_surface.py -type $situation -t '' -o $source_folder/HazMapData/xyz/$f.xyz $source_folder/HazMapData/grids/$f/*.hdf5 --keep-nans
   echo produced the xyz files
   
   # Save the grid.xml file to a new location so that it doesn't get saved over in the next iteration
@@ -76,7 +76,7 @@ done
 rm $source_folder/HazMapData/grids/grid.xml
 
 # jollate all of the probability files together and integrate them.
-python /home/nesi00213/groundfailure/scripts/collate.py -i $source_folder -o $source_folder/final_collation.csv # output into a file in the output directory
+python /home/nesi00213/groundfailure/scripts/collate.py -i $source_folder/HazMapData/xyz -o $source_folder/final_collation.csv # output into a file in the output directory
 
 echo Produced collation
 
