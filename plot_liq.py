@@ -18,6 +18,7 @@ Writes to impact/liquefaction/ the images produced from this analysis
 
 import glob
 import os
+import sys
 import subprocess
 import itertools
 import numpy as np
@@ -34,7 +35,12 @@ non_realisation_path = gf_common.create_output_path(path, 'Liquefaction', None)
 
 gridfile = gf_common.find_gridfile(path, realisation)
 
-
+script_location = os.path.realpath(sys.argv[0])
+script_folder = os.path.dirname(script_location)
+gen_gf_surface_location = os.path.join(script_folder, gf_common.gen_gf_surface_name)
+if not os.path.exists(gen_gf_surface_location):
+    gen_gf_surface_location = os.path.join(gf_common.sim_workflow_dir, gf_common.gen_gf_surface_name)
+print "using %s for gen_gf_surface" % (gen_gf_surface_location,)
 
 plot_configs = list(itertools.product(gf_common.model_list, gf_common.map_type_list, gf_common.vs30_model_list))
 
@@ -53,7 +59,7 @@ for config in plot_configs:
     
     xyz_path = create_xyz_name(out_dir, run_name, model, map_type, vs30_model)
     
-    process_cmd = os.path.join(gf_common.sim_workflow_dir  , 'gen_gf_surface.py') + " \"%s\" -t \"%s\" -o \"%s\"" % (h5path, run_name, xyz_path)
+    process_cmd = gen_gf_surface_location + " \"%s\" -t \"%s\" -o \"%s\"" % (h5path, run_name, xyz_path)
     if model == 'coastal':
         process_cmd += " -m1"
     else:

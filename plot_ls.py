@@ -18,6 +18,7 @@ import glob
 import argparse
 import subprocess
 import os
+import sys
 
 import gf_common
 
@@ -31,6 +32,13 @@ def __main__():
     non_realisation_path = gf_common.create_output_path(path, 'Landslide', None)
 
     gridfile = gf_common.find_gridfile(path, realisation)
+
+    script_location = os.path.realpath(sys.argv[0])
+    script_folder = os.path.dirname(script_location)
+    gen_gf_surface_location = os.path.join(script_folder, gf_common.gen_gf_surface_name)
+    if not os.path.exists(gen_gf_surface_location):
+        gen_gf_surface_location = os.path.join(gf_common.sim_workflow_dir, gf_common.gen_gf_surface_name)
+    print "using %s for gen_gf_surface" % (gen_gf_surface_location,)
 
     for map_type in gf_common.map_type_list:
         config = 'jessee_2017_%s.ini' % (map_type)
@@ -47,7 +55,7 @@ def __main__():
                 
         xyz_path = create_xyz_name(out_dir, run_name, map_type)
         
-        process_cmd = os.path.join(gf_common.sim_workflow_dir  , 'gen_gf_surface.py') + " %s -t %s -o %s -type ls" % (h5path, run_name, xyz_path)
+        process_cmd = gen_gf_surface_location + " %s -t %s -o %s -type ls" % (h5path, run_name, xyz_path)
         
         if map_type == 'susceptibility':
             process_cmd += " -s" 

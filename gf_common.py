@@ -11,8 +11,9 @@ import argparse
 from contextlib import contextmanager
 import subprocess
 
-sim_workflow_dir = "/home/nesi00213/groundfailure"
 plot_stations_path = 'plot_stations.py'
+gen_gf_surface_name = 'gen_gf_surface.py'
+sim_workflow_dir = "/home/nesi00213/groundfailure" #only used if files cannot be found
 
 model_list = ('general', 'coastal')
 map_type_list = ('probability', 'susceptibility')

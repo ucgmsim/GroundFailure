@@ -77,13 +77,17 @@ with open(fout_name, 'w') as fout:
     if is_liq:
         fout.write('Liquefaction ')
         if susceptibility:
-            fout.write("Susceptibility \n<REPO>/liquefaction-nolabel.cpt:topo-grey1,fixed,categorical,t-30 1k:g-nearneighbor,landmask\n\n")            
+            fout.write("Susceptibility \n<REPO>/liquefaction_susceptibility_nolabel.cpt:topo-grey1,fixed,categorical,t-30 1k:g-nearneighbor,landmask\n\n")            
     else:
         fout.write('Landslide ')
         if susceptibility:
-            fout.write("Susceptbility \n<REPO>/landslide_suc.cpt:topo-grey1,t-30,fixed,categorical 1k:g-nearneighbor,landmask\n-10 0 0.25 2\n")
+            fout.write("Susceptbility \n<REPO>/landslide_susceptibility_nolabel.cpt:topo-grey1,t-30,fixed,categorical 1k:g-nearneighbor,landmask\n-10 0 0.25 2\n")
     if not susceptibility:
-        fout.write("Probability \n<REPO>/hot-orange:topo-grey1,invert,t-30 1k:g-nearneighbor,landmask\n0 0.6 0.02 0.1\n")
+        fout.write("Probability \n<REPO>/hot-orange:topo-grey1,invert,t-30 1k:g-nearneighbor,landmask\n")
+        if is_liq:
+            fout.write("0 0.5 0.05 0.1\n")
+        else:
+            fout.write("0 0.25 0.02 0.05\n")
 
     fout.write("1 white\n")
 
