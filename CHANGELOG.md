@@ -9,6 +9,11 @@ geospatial models
 ### Changed
 ### Fixed
 
+## [18.3.2] - 2017-04-06
+### Changed
+Updated CPT paths
+Defaultly looking for gen_gf_surface in the same folder, making it more portable and able to run on other computers
+
 
 ## [18.3.1] - 2017-03-19 - Initial Release
 ### Fixed
