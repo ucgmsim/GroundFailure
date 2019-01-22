@@ -29,7 +29,6 @@ parser = argparse.ArgumentParser('grd2grid')
 
 parser.add_argument('imfile', type=str, help='Path to im file containing pgv')
 parser.add_argument('stationfile', type=str, help='Path to station file containing lon/lat')
-#parser.add_argument('csvfile', type=str, help='Path to csv file containing lon/lat/pgv')
 parser.add_argument('run_name', type=str, help='Name of the rupture - should be unique per simulation')
 parser.add_argument('output_dir', type=str, help='Directory that the output file is written to')
 parser.add_argument('-m', '--magnitude', type=float, help='Moment magnitude of the rupture')
