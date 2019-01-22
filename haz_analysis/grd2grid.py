@@ -10,11 +10,12 @@ import qcore.geo as geo
 import qcore.timeseries
 import numpy as np
 import os
+import pandas as pd
 
 import argparse
 import errno
 from qcore import shared
-from qcore.commonPlot import CommonPlot
+from qcore import utils
 
 def get_hypocentre_loc(cnrs_file):
     with open(cnrs_file) as fp:
@@ -25,7 +26,10 @@ def get_hypocentre_loc(cnrs_file):
 
 parser = argparse.ArgumentParser('grd2grid')
 
-parser.add_argument('csvfile', type=str, help='Path to csv file containing lon/lat/pgv')
+
+parser.add_argument('imfile', type=str, help='Path to im file containing pgv')
+parser.add_argument('stationfile', type=str, help='Path to station file containing lon/lat')
+#parser.add_argument('csvfile', type=str, help='Path to csv file containing lon/lat/pgv')
 parser.add_argument('run_name', type=str, help='Name of the rupture - should be unique per simulation')
 parser.add_argument('output_dir', type=str, help='Directory that the output file is written to')
 parser.add_argument('-m', '--magnitude', type=float, help='Moment magnitude of the rupture')
@@ -35,10 +39,13 @@ parser.add_argument('--dx', type=str, help="Spacing of points")
 args = parser.parse_args()
 print args
 
-fname = args.csvfile
+
+ifname = args.imfile
+sfname = args.stationfile
 run_name = args.run_name
 output_dir = args.output_dir
 temp_dir = os.path.join(output_dir, 'temp')
+fname = os.path.join(temp_dir, os.path.basename(args.imfile.replace(".csv", "_station_merged.csv", 1)))
 
 mag = args.magnitude
 dep = args.depth
@@ -54,8 +61,13 @@ if args.dx is None:
 else:
     dy = dx = args.dx
 
-CommonPlot.create_dir(output_dir)
-CommonPlot.create_dir(temp_dir)
+utils.setup_dir(output_dir)
+utils.setup_dir(temp_dir)
+
+im_csv = pd.read_csv(ifname)
+stat_csv = pd.read_csv(sfname, header=None, names=["lat","lon","station"], delim_whitespace=True)
+out_csv = im_csv.merge(stat_csv)
+out_csv.to_csv(fname, columns=['lat','lon','PGV'], index=False, header=False, sep=' ')
 
 with open(fname) as f:
     lats = list()
@@ -63,7 +75,7 @@ with open(fname) as f:
     values = list()
 
     for line in f:
-        lon, lat, ___ = map(np.float, line.split())
+        lon, lat, pgv = map(np.float, line.split())
         values.append((lon, lat))
 
 values.sort(key=lambda tup: (tup[0], tup[1]))
@@ -89,7 +101,7 @@ temp_grid = os.path.join(temp_dir, 'tmp.grd')
 out_grid = os.path.join(temp_dir, 'PAGER_PGV.grd')
 int_xyz = os.path.join(temp_dir, 'PAGER_PGV.xyz')
 gmt.table2grd(fname, temp_grid, region=region, dx=dx, dy=dy, climit=0.1)
-print "table2grd sucess"
+print "table2grd success"
 gmt.grdmath([temp_grid, mask, 'MUL', 0, 'AND', 0, 'MAX', '=', out_grid])
 
 lons = set()
