@@ -22,9 +22,9 @@ def main(args):
     for i in range(len(csv_data)):
         lat, lon = csv_data.iloc[i][["LAT","LONG"]]
         try:
-            csv_data.at[i, "LANDSLIDE"] = data.getValue(lat, lon)
+            csv_data.at[i, "LANDSLIDE"] = str(data.getValue(lat, lon))
         except DataSetException as e:
-            csv_data.at[i, "LANDSLIDE"] = "NaN"
+            csv_data.at[i, "LANDSLIDE"] = "nan"
     
     interp_time = time.time() - time1
     print("Interpolation time: %s sec" % interp_time)

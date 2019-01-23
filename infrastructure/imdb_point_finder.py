@@ -20,7 +20,7 @@ args = parser.parse_args()
 
 data = pd.read_csv(args.input, index_col=0)
 data = data.assign(CLOSEST_STATION="")
-data = data.assign(PGA="NaN")
+data = data.assign(PGA="nan")
 
 
 for i in data.index:
