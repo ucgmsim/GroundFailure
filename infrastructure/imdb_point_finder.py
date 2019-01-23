@@ -9,31 +9,36 @@ from qcore import imdb
 import argparse
 import pandas as pd
 
-parser = argparse.ArgumentParser()
-parser.add_argument("imdb", help="IMDB file location")
-parser.add_argument("input", help="Input file name")
-parser.add_argument("output", help="Output file name")
-parser.add_argument("realisation", help="The realisation to choose")
-parser.add_argument("im", help="Intensity measure name")
-args = parser.parse_args()
+
+def imdb_finder(imdb_file, input_file, output_file, realisation, intensity_measure):
+
+    data = pd.read_csv(input_file, index_col=0, encoding="ISO-8859-1")
+    data = data.assign(CLOSEST_STATION="")
+    data = data.assign(INTENSITY_MEASURE="nan")
+
+    for i in data.index:
+
+        station_name, lat, long, dist = imdb.closest_station(imdb_file, data.LONG[i], data.LAT[i])
+        station_name = station_name.decode("utf-8")
+        if dist > 10:
+            # Too far to be useful
+            continue
+
+        data.at[i, "CLOSEST_STATION"] = station_name
+        intensity_measure_realisations = imdb.station_ims(imdb_file, station_name)[intensity_measure]
+        if args.realisation in intensity_measure_realisations:
+            data.at[i, "INTENSITY_MEASURE"] = intensity_measure_realisations[realisation]
+
+    data.to_csv(output_file)
 
 
-data = pd.read_csv(args.input, index_col=0)
-data = data.assign(CLOSEST_STATION="")
-data = data.assign(PGA="nan")
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("imdb", help="IMDB file location")
+    parser.add_argument("input", help="Input file name")
+    parser.add_argument("output", help="Output file name")
+    parser.add_argument("realisation", help="The realisation to choose")
+    parser.add_argument("im", help="Intensity measure name")
+    args = parser.parse_args()
 
-
-for i in data.index:
-
-    station_name, lat, long, dist = imdb.closest_station(args.imdb, data.LONG[i], data.LAT[i])
-    station_name = station_name.decode("utf-8")
-    if dist > 10:
-        # Too far to be useful
-        continue
-
-    data.at[i, "CLOSEST_STATION"] = station_name
-    PGA_realisations = imdb.station_ims(args.imdb, station_name)[args.im.encode()]
-    if args.realisation in PGA_realisations:
-        data.at[i, args.im] = PGA_realisations[args.realisation]
-
-data.to_csv(args.output)
+    imdb_finder(args.imdb, args.input, args.output, args.realisation, args.im)

@@ -2,6 +2,7 @@ imdb=$1
 h5_parent_dir=$2
 output=$3
 csv_folder=$4
+ims="-ims PGA"
 
 
 for dir in "$h5_parent_dir"/*; do
@@ -19,7 +20,7 @@ for dir in "$h5_parent_dir"/*; do
         echo "$csv_folder"
         echo "$imdb"
 
-        python3 ./master_point_finder.py $imdb $landslide $liquefaction $output_folder $csv_folder
+        python3 ./master_point_finder.py $imdb $landslide $liquefaction $output_folder $ims $csv_folder
     fi
 
 done
