@@ -10,25 +10,12 @@ import pandas as pd
 def main(args):
     ls_file = args.hdf5file
     csv_file = args.csvfile
-    #n_sample = int(args.n)
     # Load data
     grid = MultiHazardGrid.load(ls_file)
     keys = list(grid.getLayerNames())
     data = grid.getData()[keys[0]]
-    #geo_dict = data.getGeoDict()
     
-    csv_data = pd.read_csv(csv_file)
-    #x_samples = csv_data["LONG"].tolist()
-    #y_samples = csv_data["LAT"].tolist()
-    #imin = 0
-    #imax = len(csv_data)
-
-    # Random sample locations
-    #x_index_samples = np.random.randint(imin, imax, n_sample)
-    #y_index_samples = np.random.randint(imin, imax, n_sample)
-    #samples = np.zeros(len(csv_data))
-
-    # Do the interpolation
+    csv_data = pd.read_csv(csv_file, index_col=0, encoding="ISO-8859-1")
 
     csv_data = csv_data.assign(LANDSLIDE="")
     time1 = time.time()
@@ -48,6 +35,5 @@ if __name__ == '__main__':
     parser.add_argument('hdf5file', help='groundfailure hdf file.')
     parser.add_argument('csvfile', help='location csv file.')
     parser.add_argument('outfile', help='output csv file name.')
-    #parser.add_argument('n', help='Number of samples.')
     args = parser.parse_args()
     main(args)
