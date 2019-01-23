@@ -18,7 +18,7 @@ def main(args):
     processes = []
 
     if imdb_fname != "None":
-        script = "im_extractor.py"
+        script = "imdb_point_finder.py"
         for input_file in files:
             output = os.path.join(args.output, os.path.basename(input_file.replace(".csv", "_PGA.csv")))
             cmd = [
@@ -33,7 +33,7 @@ def main(args):
             processes.append(Popen(cmd))
 
     if landslide_fname != "None":
-        script = "landslide_association.py"
+        script = "usgs_point_finder.py"
         for input_file in files:
             output = os.path.join(args.output, os.path.basename(input_file.replace(".csv", "_landslide.csv")))
             cmd = [
@@ -46,7 +46,7 @@ def main(args):
             processes.append(Popen(cmd))
 
     if liquefaction_fname != "None":
-        script = "landslide_association.py"
+        script = "usgs_point_finder.py"
         for input_file in files:
             output = os.path.join(args.output, os.path.basename(input_file.replace(".csv", "_liquefaction.csv")))
             cmd = [
