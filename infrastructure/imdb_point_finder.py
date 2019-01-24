@@ -18,15 +18,14 @@ def imdb_finder(imdb_file, input_file, output_file, realisation, intensity_measu
 
     for i in data.index:
 
-        station_name, lat, long, dist = imdb.closest_station(imdb_file, data.LONG[i], data.LAT[i])
+        station_name, lat, lon, dist = imdb.closest_station(imdb_file, data.LONG[i], data.LAT[i])
         station_name = station_name.decode("utf-8")
         if dist > 10:
             # Too far to be useful
             continue
-
         data.at[i, "CLOSEST_STATION"] = station_name
         intensity_measure_realisations = imdb.station_ims(imdb_file, station_name)[intensity_measure]
-        if args.realisation in intensity_measure_realisations:
+        if realisation in intensity_measure_realisations:
             data.at[i, "INTENSITY_MEASURE"] = intensity_measure_realisations[realisation]
 
     data.to_csv(output_file)

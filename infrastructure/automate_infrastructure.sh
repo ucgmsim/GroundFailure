@@ -20,7 +20,7 @@ for dir in "$h5_parent_dir"/*; do
         echo "$csv_folder"
         echo "$imdb"
 
-        python3 ./master_point_finder.py $imdb $landslide $liquefaction $output_folder $ims $csv_folder
+        python3 ./master_point_finder.py $imdb $landslide $liquefaction $output_folder $csv_folder
     fi
 
 done
