@@ -56,18 +56,18 @@ def main(imdb_fname, landslide_fname, liquefaction_fname, files, ims, realisatio
             #List of ims to use.
             for im in ims:
                 output = os.path.join(args.output, os.path.basename(input_file.replace(".csv", "_"+im+".csv")))
-                processes.append(pool.apply_async(imdb_point_finder.imdb_finder,
-                                 (imdb_fname, input_file, output, realisation.encode(), im.encode())))
+                pool.apply_async(imdb_point_finder.imdb_finder,
+                                 (imdb_fname, input_file, output, realisation.encode(), im.encode()))
 
     if landslide_fname != "None":
         for input_file in files:
             output = os.path.join(args.output, os.path.basename(input_file.replace(".csv", "_landslide.csv")))
-            processes.append(pool.apply_async(usgs_point_finder.ground_failure_finder, (landslide_fname, input_file, output)))
+            pool.apply_async(usgs_point_finder.ground_failure_finder, (landslide_fname, input_file, output))
 
     if liquefaction_fname != "None":
         for input_file in files:
             output = os.path.join(args.output, os.path.basename(input_file.replace(".csv", "_liquefaction.csv")))
-            processes.append(pool.apply_async(usgs_point_finder.ground_failure_finder, (liquefaction_fname, input_file, output)))
+            pool.apply_async(usgs_point_finder.ground_failure_finder, (liquefaction_fname, input_file, output))
 
     pool.close()
     pool.join()
