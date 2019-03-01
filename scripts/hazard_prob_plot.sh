@@ -23,7 +23,7 @@ source_folder=$1 #"/home/lukelongworth"
 source_file=$2 # "HazCurveResults.txt" Should be in source_folder
 years=${3:-50.0} # 50
 probabilities=${4:-0.8,0.5,0.25,0.1,0.08,0.06,0.04,0.02,0.01,0.005} #0.8,0.5,0.25,0.1,0.08,0.06,0.04,0.02,0.01,0.005
-ini=${5:-jessee_2017_probability.ini} #This enables you to change the config file to use different liquefaction models or switch to landslide
+ini=${5:-zhu_2016_general_probability_nz-specific-vs30.ini} #This enables you to change the config file to use different liquefaction models or switch to landslide
 
 # Check whether we are dealing with liquefaction or landslides
 if [[ $ini == *"zhu"* ]]; then
@@ -56,7 +56,7 @@ do
   # The configuration file we need is different based on whether it is liquefaction or landslide
   # Runs the gfail script on the grid.xml file
   if [[ $situation == "liq" ]]; then
-    python3 /usr/bin/gfail $ini $source_folder/HazMapData/grids/grid.xml --set-bounds 'zoom, pgv, 0' --hdf5 -o $source_folder/HazMapData/grids -c /home/nesi00213/groundfailure/config/ -d /home/nesi00213/groundfailure/liquefaction_model/ 
+    python3 /usr/bin/gfail $ini $source_folder/HazMapData/grids/grid.xml     --hdf5 -o $source_folder/HazMapData/grids -c  /home/nesi00213/groundfailure/config/ -d /home/nesi00213/groundfailure/liquefaction_model/ -b [-44,-46,168,170]
   else
     python3 /usr/bin/gfail $ini $source_folder/HazMapData/grids/grid.xml --set-bounds 'zoom, pgv, 0' --hdf5 -o $source_folder/HazMapData/grids -c /home/nesi00213/groundfailure/config/ -d /home/nesi00213/groundfailure/landslide_model/
   fi

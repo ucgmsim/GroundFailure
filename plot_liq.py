@@ -50,7 +50,7 @@ for config in plot_configs:
     liq_config = 'zhu_2016_%s_%s_%s.ini' % (model, map_type, vs30_model)
     model_dir = os.path.join(gf_common.sim_workflow_dir  , 'liquefaction_model')
     config_dir = os.path.join(gf_common.sim_workflow_dir  , 'config')
-    liq_cmd = "python3 /usr/bin/gfail %s %s -d %s -c %s -o %s --set-bounds 'zoom, pgv, 0' --hdf5" % (liq_config, gridfile, model_dir, config_dir, non_realisation_path)
+    liq_cmd = "python3 /usr/bin/gfail %s %s -d %s -c %s -o %s --set-bounds 'zoom, pgv, 0' --hdf5 -pi" % (liq_config, gridfile, model_dir, config_dir, non_realisation_path)
 
     print 'Running liquefaction calculations'
     subprocess.call(liq_cmd, shell=True)
