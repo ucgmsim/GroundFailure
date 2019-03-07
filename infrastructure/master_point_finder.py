@@ -81,11 +81,11 @@ if __name__ == "__main__":
     parser.add_argument('landslide', type=str, help='Path to landslide hdf5 file. May be None')
     parser.add_argument('liquefaction', type=str, help='Path to liquefaction hdf5 file. May be None')
     parser.add_argument('output', type=str, help='The folder to put all output files in.')
-    #parser.add_argument('-ims', '--intensity_measures', type=list, dest='ims', nargs='*', default=['PGA'], help='The intensity measures to take from imdb.')
+    parser.add_argument('-i', '--intensity_measures', type=str, dest='ims', nargs='+', default=['PGA'], help='The intensity measures to take from imdb.')
 
     files = parser.add_mutually_exclusive_group(required=True)
     files.add_argument('-g','--infrastructure_folder', type=str, help='Name of the rupture - should be unique per simulation')
-    files.add_argument('-f', '--infrastructure_files', type=list, dest='files', nargs=argparse.REMAINDER, help='A list of infrastructure files to be processed' )
+    files.add_argument('-f', '--infrastructure_files', type=str, dest='files', nargs=argparse.REMAINDER, help='A list of infrastructure files to be processed' )
 
     if ('-f' not in sys.argv) and ('-g' not in sys.argv) and len(sys.argv)>1:
         sys.argv.insert(-1, "-g")
@@ -100,5 +100,5 @@ if __name__ == "__main__":
     else:
         folder = args.infrastructure_folder
         files = list(map(lambda x: os.path.join(folder, x), os.listdir(folder)))
-
-    main(args.imdb, args.landslide, args.liquefaction, files, ["PGA"])
+    
+    main(args.imdb, args.landslide, args.liquefaction, files, args.ims)
