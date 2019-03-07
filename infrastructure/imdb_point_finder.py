@@ -18,20 +18,26 @@ def imdb_finder(imdb_file, input_file, output_file, realisation, intensity_measu
 
     for i in data.index:
 
-        station_name, lat, lon, dist = imdb.closest_station(imdb_file, data.LONG[i], data.LAT[i])
+        station_name, lat, lon, dist = imdb.closest_station(
+            imdb_file, data.LONG[i], data.LAT[i]
+        )
         station_name = station_name.decode("utf-8")
         if dist > 10:
             # Too far to be useful
             continue
         data.at[i, "CLOSEST_STATION"] = station_name
-        intensity_measure_realisations = imdb.station_ims(imdb_file, station_name)[intensity_measure]
+        intensity_measure_realisations = imdb.station_ims(imdb_file, station_name)[
+            intensity_measure
+        ]
         if realisation in intensity_measure_realisations:
-            data.at[i, "INTENSITY_MEASURE"] = intensity_measure_realisations[realisation]
+            data.at[i, "INTENSITY_MEASURE"] = intensity_measure_realisations[
+                realisation
+            ]
 
     data.to_csv(output_file)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("imdb", help="IMDB file location")
     parser.add_argument("input", help="Input file name")
