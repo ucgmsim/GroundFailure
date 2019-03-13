@@ -32,7 +32,7 @@ def imdb_finder(imdb_file, input_file, output_file, realisation, intensity_measu
                 im
             ]
             if realisation in intensity_measure_realisations:
-                data.at[i, "INTENSITY_MEASURE"] = intensity_measure_realisations[
+                data.at[i, im] = intensity_measure_realisations[
                     realisation
                 ]
 
@@ -48,4 +48,4 @@ if __name__ == "__main__":
     parser.add_argument("im", help="Intensity measure name", nargs="+", type=str)
     args = parser.parse_args()
 
-    imdb_finder(args.imdb, args.input, args.output, args.realisation, args.im)
+    imdb_finder(args.imdb, args.input, args.output, args.realisation, [im.encode() for im in args.im])
