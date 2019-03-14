@@ -1,20 +1,33 @@
+#!/usr/bin/env python
+
+# Calculates Ground Failure (liquefaction & landslide) susceptibility & probability at points specified by the input files.
+# Depends on GMT binaries being in the path
+
 import argparse
 import tempfile
 import os
 import subprocess
+from enum import Enum
 
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
 
+class gfe_types(Enum):
+    zhu2016 = 'zhu2016'
+    jessee2017 = 'jessee2017'
+
+
 def get_model_path(model_dir, model):
+    # Returns path to a model file as an input argument to GMT functions
     return "-G" + str(os.path.join(model_dir, model))
 
 
 def get_models(model_dir, gfe_type):
+    # Determines the models needed for the specific GroundFailure type
     models = []
-    if "zhu2016" in gfe_type:
+    if gfe_types.zhu2016 in gfe_type:
         distance_to_coast = get_model_path(model_dir, "nz_dc_km.grd")
         distance_to_rivers = get_model_path(model_dir, "nz_dr_km.grd")
         precipitation = get_model_path(model_dir, "nz_precip_fil_mm.grd")
@@ -30,7 +43,7 @@ def get_models(model_dir, gfe_type):
                 water_table_depth,
             ]
         )
-    if "jesse2017" in gfe_type:
+    if gfe_types.jessee2017 in gfe_type:
         slope = get_model_path(model_dir, "nz_grad.grd")
         lithography = get_model_path(model_dir, "nz_GLIM_replace.grd")
         land_cover = get_model_path(model_dir, "nz_globcover_replace.grd")
@@ -42,6 +55,7 @@ def get_models(model_dir, gfe_type):
 
 
 def get_cols(df):
+    # Finds the columns indicated
     lon_col = lat_col = None
     column_names = [str.lower(name.strip()[0:3]) for name in df.columns.values]
     if "lon" in column_names:
@@ -50,16 +64,17 @@ def get_cols(df):
         lat_col = df.columns.values[column_names.index("lat")]
 
     if lon_col is None or lat_col is None:
-        exit("invalid input")
+        exit("invalid input - cannot find lat or lon in the input file header")
 
     return lat_col, lon_col
 
 
-def get_input_values(model_dirs, xy_file, inputs_file, gfe_type):
+def interpolate_input_grid(model_dirs, xy_file, inputs_file, gfe_type):
+    # Uses grdtrack to sample the groundfailure input grids and write their values to `inputs_file`
     models = get_models(model_dirs, gfe_type)
     with open(inputs_file, "w") as inputs_fp:
         columns = "lon	lat"
-        if "zhu2016" in gfe_type:
+        if gfe_types.zhu2016 in gfe_type:
             columns = (
                 columns
                 + "	distance_to_coast	distance_to_rivers	precipitation	vs30	water_table_depth"
@@ -75,34 +90,10 @@ def get_input_values(model_dirs, xy_file, inputs_file, gfe_type):
         subprocess.call(cmd, stdout=inputs_fp)
 
 
-def calculate_gf():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "input_file",
-        help="CSV containing lat, lon values."
-        "Must have a header column starting with lat, lon)",
-    )
-    parser.add_argument("output_file", help="path to output file")
-    parser.add_argument(
-        "--gfe_type", "-g", choices=["zhu2016", "jesse2017"], required=True, nargs="+"
-    )
-    parser.add_argument(
-        "--suscesptibility", "-s", help="Flag indicating to store susceptibility"
-    )
-    parser.add_argument(
-        "--im_file", "-i", help="File containing an IM_csv for probability calculations"
-    )
-    parser.add_argument(
-        "--models_dir",
-        "-m",
-        help="Folder containing the models",
-        default="/nesi/project/nesi00213/groundfailure/models",
-    )
-
-    args = parser.parse_args()
-
-    in_fd = open(args.input_file, encoding="utf8", errors="backslashreplace")
-    df = pd.read_csv(in_fd)
+def calculate_gf(input_file, output_file, models_dir, gfe_type, store_susceptibility=False):
+    # calculates groundfailure at specified locations and stores it in output_file # I feel like this comment is redundant
+    with open(input_file, encoding="utf8", errors="backslashreplace") as in_fd:
+        df = pd.read_csv(in_fd)
 
     with tempfile.TemporaryDirectory() as tmp_folder:
         xy_file = os.path.join(tmp_folder, "points.xy")
@@ -113,40 +104,78 @@ def calculate_gf():
             xy_file, columns=[lon_col, lat_col], header=None, index=False, sep=","
         )
 
-        get_input_values(args.models_dir, xy_file, inputs_file, gfe_type=args.gfe_type)
+        interpolate_input_grid(models_dir, xy_file, inputs_file, gfe_type=gfe_type)
         source_data = pd.read_csv(inputs_file, delim_whitespace=True)
 
         trimmed_columns = ["lat", "lon"]
         columns = list(df.columns.values)
-        if "jesse2017" in args.gfe_type:
-            source_data["jesse2017_susceptibility"] = (
-                -6.3
-                + np.arctan(source_data.slope) * 0.06 * 180 / np.pi
-                + source_data.rock * 1
-                + source_data.cti * 0.03
-                + source_data.landcover * 1.0
-            )
-            columns.append("jesse2017_susceptibility")
+        if gfe_types.jessee2017 in gfe_type:
+            source_data["jesse2017_susceptibility"] = calculate_jessee2017_susceptibility(source_data.slope, source_data.rock, source_data.cti, source_data.landcover)
+            if store_susceptibility:
+                columns.append("jesse2017_susceptibility")
             trimmed_columns.append("jesse2017_susceptibility")
-        if "zhu2016" in args.gfe_type:
-            source_data["zhu2016_susceptibility"] = (
-                8.801
-                + np.log(source_data.vs30) * -1.918
-                + source_data.precipitation * 0.0005408
-                + np.minimum(
-                    source_data.distance_to_coast, source_data.distance_to_rivers
-                )
-                * -0.2054
-                + source_data.water_table_depth * -0.0333
-            )
-            columns.append("zhu2016_susceptibility")
+        if gfe_types.zhu2016 in gfe_type:
+            source_data["zhu2016_susceptibility"] = calculate_zhu2016_susceptibility(source_data.vs30, source_data.precipitation, source_data.distance_to_rivers, source_data.water_table_depth)
+            if store_susceptibility:
+                columns.append("zhu2016_susceptibility")
             trimmed_columns.append("zhu2016_susceptibility")
         source_data_trimmed = source_data[trimmed_columns]
         df = df.merge(
             source_data_trimmed, left_on=[lat_col, lon_col], right_on=["lat", "lon"]
         )
-    df.to_csv(args.output_file, columns=columns, index=False, sep=",")
+    df.to_csv(output_file, columns=columns, index=False, sep=",")
+
+
+def calculate_zhu2016_susceptibility(vs30, precipitation, distance_to_coast, distance_to_rivers, water_table_depth):
+    return (
+            8.801
+            + np.log(vs30) * -1.918
+            + precipitation * 0.0005408
+            + np.minimum(
+        distance_to_coast, distance_to_rivers
+    )
+            * -0.2054
+            + water_table_depth * -0.0333
+    )
+
+
+def calculate_jessee2017_susceptibility(slope, rock, cti, landcover):
+    return (
+            -6.3
+            + np.arctan(slope) * 0.06 * 180 / np.pi
+            + rock * 1
+            + cti * 0.03
+            + landcover * 1.0
+    )
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "input_file",
+        help="CSV containing lat, lon values."
+             "Must have a header column starting with lat, lon)",
+    )
+    parser.add_argument("output_file", help="path to output file")
+    parser.add_argument(
+        "--gfe_type", "-g", choices=[gfe_types.zhu2016, gfe_types.jessee2017], required=True, nargs="+"
+    )
+    parser.add_argument(
+        "--susceptibility", "-s", help="Flag indicating to store susceptibility"
+    )
+    parser.add_argument(
+        "--im_file", "-i", help="File containing an IM_csv for probability calculations"
+    )
+    parser.add_argument(
+        "--models_dir",
+        "-m",
+        help="Folder containing the models",
+        default="/nesi/project/nesi00213/groundfailure/models",
+    )
+    args = parser.parse_args()
+
+    calculate_gf(args.input_file, args.output_file, args.models_dir, args.gfe_type, args.susceptibility)
 
 
 if __name__ == "__main__":
-    calculate_gf()
+    main()
