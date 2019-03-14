@@ -15,8 +15,8 @@ import numpy as np
 
 
 class gfe_types(Enum):
-    zhu2016 = 'zhu2016'
-    jessee2017 = 'jessee2017'
+    zhu2016 = "zhu2016"
+    jessee2017 = "jessee2017"
 
 
 def get_model_path(model_dir, model):
@@ -90,7 +90,9 @@ def interpolate_input_grid(model_dirs, xy_file, inputs_file, gfe_type):
         subprocess.call(cmd, stdout=inputs_fp)
 
 
-def calculate_gf(input_file, output_file, models_dir, gfe_type, store_susceptibility=False):
+def calculate_gf(
+    input_file, output_file, models_dir, gfe_type, store_susceptibility=False
+):
     # calculates groundfailure at specified locations and stores it in output_file # I feel like this comment is redundant
     with open(input_file, encoding="utf8", errors="backslashreplace") as in_fd:
         df = pd.read_csv(in_fd)
@@ -110,12 +112,24 @@ def calculate_gf(input_file, output_file, models_dir, gfe_type, store_susceptibi
         trimmed_columns = ["lat", "lon"]
         columns = list(df.columns.values)
         if gfe_types.jessee2017 in gfe_type:
-            source_data["jesse2017_susceptibility"] = calculate_jessee2017_susceptibility(source_data.slope, source_data.rock, source_data.cti, source_data.landcover)
+            source_data[
+                "jesse2017_susceptibility"
+            ] = calculate_jessee2017_susceptibility(
+                source_data.slope,
+                source_data.rock,
+                source_data.cti,
+                source_data.landcover,
+            )
             if store_susceptibility:
                 columns.append("jesse2017_susceptibility")
             trimmed_columns.append("jesse2017_susceptibility")
         if gfe_types.zhu2016 in gfe_type:
-            source_data["zhu2016_susceptibility"] = calculate_zhu2016_susceptibility(source_data.vs30, source_data.precipitation, source_data.distance_to_rivers, source_data.water_table_depth)
+            source_data["zhu2016_susceptibility"] = calculate_zhu2016_susceptibility(
+                source_data.vs30,
+                source_data.precipitation,
+                source_data.distance_to_rivers,
+                source_data.water_table_depth,
+            )
             if store_susceptibility:
                 columns.append("zhu2016_susceptibility")
             trimmed_columns.append("zhu2016_susceptibility")
@@ -126,26 +140,25 @@ def calculate_gf(input_file, output_file, models_dir, gfe_type, store_susceptibi
     df.to_csv(output_file, columns=columns, index=False, sep=",")
 
 
-def calculate_zhu2016_susceptibility(vs30, precipitation, distance_to_coast, distance_to_rivers, water_table_depth):
+def calculate_zhu2016_susceptibility(
+    vs30, precipitation, distance_to_coast, distance_to_rivers, water_table_depth
+):
     return (
-            8.801
-            + np.log(vs30) * -1.918
-            + precipitation * 0.0005408
-            + np.minimum(
-        distance_to_coast, distance_to_rivers
-    )
-            * -0.2054
-            + water_table_depth * -0.0333
+        8.801
+        + np.log(vs30) * -1.918
+        + precipitation * 0.0005408
+        + np.minimum(distance_to_coast, distance_to_rivers) * -0.2054
+        + water_table_depth * -0.0333
     )
 
 
 def calculate_jessee2017_susceptibility(slope, rock, cti, landcover):
     return (
-            -6.3
-            + np.arctan(slope) * 0.06 * 180 / np.pi
-            + rock * 1
-            + cti * 0.03
-            + landcover * 1.0
+        -6.3
+        + np.arctan(slope) * 0.06 * 180 / np.pi
+        + rock * 1
+        + cti * 0.03
+        + landcover * 1.0
     )
 
 
@@ -154,11 +167,15 @@ def main():
     parser.add_argument(
         "input_file",
         help="CSV containing lat, lon values."
-             "Must have a header column starting with lat, lon)",
+        "Must have a header column starting with lat, lon)",
     )
     parser.add_argument("output_file", help="path to output file")
     parser.add_argument(
-        "--gfe_type", "-g", choices=[gfe_types.zhu2016, gfe_types.jessee2017], required=True, nargs="+"
+        "--gfe_type",
+        "-g",
+        choices=[gfe_types.zhu2016, gfe_types.jessee2017],
+        required=True,
+        nargs="+",
     )
     parser.add_argument(
         "--susceptibility", "-s", help="Flag indicating to store susceptibility"
@@ -174,7 +191,13 @@ def main():
     )
     args = parser.parse_args()
 
-    calculate_gf(args.input_file, args.output_file, args.models_dir, args.gfe_type, args.susceptibility)
+    calculate_gf(
+        args.input_file,
+        args.output_file,
+        args.models_dir,
+        args.gfe_type,
+        args.susceptibility,
+    )
 
 
 if __name__ == "__main__":
