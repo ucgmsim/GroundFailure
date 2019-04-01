@@ -34,9 +34,9 @@ def get_magnitude(sources_folder, realisation):
     if realisation not in magnitudes.keys():
         srf_path = path.join(
             sources_folder, simulation_structure.get_srf_location(realisation)
-        )
+        ).replace(".srf", ".info")
         with h5open(srf_path, "r") as srf_file:
-            magnitudes.update({realisation: srf_file["mag"]})
+            magnitudes.update({realisation: srf_file.attrs["mag"]})
     return magnitudes[realisation]
 
 
@@ -51,7 +51,7 @@ def imdb_finder(
 
     data = pd.read_csv(input_file, index_col=0, encoding="ISO-8859-1")
     data = data.assign(CLOSEST_STATION="")
-    data = data.assign(INTENSITY_MEASURE="nan")
+    data = data.assign(**{"{}_{}".format(im.decode("utf-8"), rel.decode("utf-8")): "nan" for im in intensity_measures for rel in realisations})
 
     for i in data.index:
 
@@ -68,13 +68,15 @@ def imdb_finder(
             intensity_measure_realisations = imdb.station_ims(
                 imdb_file, station_name, im
             )
+            im = im.decode("utf-8")
             for rel in realisations:
                 if rel in intensity_measure_realisations:
+                    rel = rel.decode("utf-8")
                     kwargs = {}
                     if im in ["PGA", "PGV"]:
                         kwargs.update({'magnitude': get_magnitude(sources_folder, rel)})
                     data.at[
-                        i, "{}_{}".format(im.decode("utf-8"), rel.decode("utf-8"))
+                        i, "{}_{}".format(im, rel)
                     ] = scale_im(
                         intensity_measure_realisations[rel],
                         im,
