@@ -51,14 +51,13 @@ def imdb_finder(
 
     data = pd.read_csv(input_file, index_col=0, encoding="ISO-8859-1")
     data = data.assign(CLOSEST_STATION="")
-    data = data.assign(**{"{}_{}".format(im.decode("utf-8"), rel.decode("utf-8")): "nan" for im in intensity_measures for rel in realisations})
+    data = data.assign(**{"{}_{}".format(im, rel): "nan" for im in intensity_measures for rel in realisations})
 
     for i in data.index:
 
         station_name, lat, lon, dist = imdb.closest_station(
             imdb_file, data.LONG[i], data.LAT[i]
         )
-        station_name = station_name.decode("utf-8")
         if dist > 10:
             # Too far to be useful
             continue
@@ -68,10 +67,8 @@ def imdb_finder(
             intensity_measure_realisations = imdb.station_ims(
                 imdb_file, station_name, im
             )
-            im = im.decode("utf-8")
             for rel in realisations:
                 if rel in intensity_measure_realisations:
-                    rel = rel.decode("utf-8")
                     kwargs = {}
                     if im in ["PGA", "PGV"]:
                         kwargs.update({'magnitude': get_magnitude(sources_folder, rel)})
@@ -119,7 +116,7 @@ if __name__ == "__main__":
         args.imdb,
         args.input,
         args.output,
-        [rel.encode("utf-8") for rel in args.realisation],
-        [im.encode("utf-8") for im in args.im],
+        args.realisation,
+        args.im,
         args.source_dir,
     )
