@@ -5,12 +5,49 @@ For each line in a given file with longitude and latitude data append the name o
 the intensity measure of the requested type for the given realisation
 """
 
-from qcore import imdb
+from os import path
+from math import pow, log
 import argparse
 import pandas as pd
+from h5py import File as h5open
+from qcore import imdb, simulation_structure
+
+magnitudes = {}
+scale_functions = {
+    "PGA": lambda pga, magnitude, **kwargs: log(
+        (pga / 100.0) * (pow(magnitude, 2.56) / pow(10, 2.24))
+    ),
+    "PGV": lambda pgv, magnitude, **kwargs: log(
+        pgv * (1 / (1 + pow(2.71828, -2 * (magnitude - 6))))
+    ),
+}
 
 
-def imdb_finder(imdb_file, input_file, output_file, realisations, intensity_measures):
+def scale_im(im_val, im_name, **kwargs):
+    if im_name in scale_functions:
+        return scale_functions[im_name](im_val, **kwargs)
+    else:
+        return im_val
+
+
+def get_magnitude(sources_folder, realisation):
+    if realisation not in magnitudes.keys():
+        srf_path = path.join(
+            sources_folder, simulation_structure.get_srf_location(realisation)
+        )
+        with h5open(srf_path, "r") as srf_file:
+            magnitudes.update({realisation: srf_file["mag"]})
+    return magnitudes[realisation]
+
+
+def imdb_finder(
+    imdb_file,
+    input_file,
+    output_file,
+    realisations,
+    intensity_measures,
+    sources_folder=None,
+):
 
     data = pd.read_csv(input_file, index_col=0, encoding="ISO-8859-1")
     data = data.assign(CLOSEST_STATION="")
@@ -33,9 +70,16 @@ def imdb_finder(imdb_file, input_file, output_file, realisations, intensity_meas
             )
             for rel in realisations:
                 if rel in intensity_measure_realisations:
+                    kwargs = {}
+                    if im in ["PGA", "PGV"]:
+                        kwargs.update({'magnitude': get_magnitude(sources_folder, rel)})
                     data.at[
                         i, "{}_{}".format(im.decode("utf-8"), rel.decode("utf-8"))
-                    ] = intensity_measure_realisations[rel]
+                    ] = scale_im(
+                        intensity_measure_realisations[rel],
+                        im,
+                        **kwargs,
+                    )
 
     data.to_csv(output_file)
 
@@ -55,7 +99,19 @@ if __name__ == "__main__":
     parser.add_argument(
         "--im", help="Intensity measure name", nargs="+", type=str, required=True
     )
+    parser.add_argument(
+        "-d",
+        "--source_dir",
+        help="The cybershake sources directory, in the data directory",
+        type=str,
+        default=None,
+    )
     args = parser.parse_args()
+
+    if ("PGA" in args.im or "PGV" in args.im) and args.source_dir is None:
+        parser.error(
+            "--source_dir must be given for the correct calculation of PGA and PGV"
+        )
 
     imdb_finder(
         args.imdb,
@@ -63,4 +119,5 @@ if __name__ == "__main__":
         args.output,
         [rel.encode("utf-8") for rel in args.realisation],
         [im.encode("utf-8") for im in args.im],
+        args.source_dir,
     )
