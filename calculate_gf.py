@@ -79,7 +79,7 @@ def interpolate_input_grid(model_dirs, xy_file, inputs_file, gfe_type):
         if gfe_types.zhu2016 in gfe_type:
             columns = (
                 columns
-                + "	distance_to_coast	distance_to_rivers	precipitation	vs30	water_table_depth"
+                + "	distance_to_coast	distance_to_rivers	precipitation	vs30	water_table_depth   dr  dc"
             )
         if "jesse2017" in gfe_type:
             columns = columns + "	slope	rock	landcover	cti"
@@ -111,6 +111,9 @@ def calculate_gf(
     )
     pgv_scaled_realisations = list(
         filter(lambda x: x if "pgv_scaled_" in x else None, df.columns)
+    )
+    pga_scaled_realisations = list(
+        filter(lambda x: x if "pga_scaled_" in x else None, df.columns)
     )
 
     with tempfile.TemporaryDirectory() as tmp_folder:
@@ -187,6 +190,34 @@ def calculate_gf(
                 trimmed_columns.append(header)
                 columns.append(header)
 
+            for rel in pga_scaled_realisations:
+                header = "zhu2015coastal_{}".format(rel)
+                source_data[header] = calculate_zhu2015_coastal_probability(
+                    df[rel], source_data.cti, source_data.vs30
+                )
+                trimmed_columns.append(header)
+                columns.append(header)
+                header = "zhu2016coastal_{}".format(rel)
+                source_data[header] = calculate_zhu2016_coastal_probability(
+                    df[rel],
+                    source_data.vs30,
+                    source_data.precip,
+                    source_data.dc,
+                    source_data.dr,
+                )
+                trimmed_columns.append(header)
+                columns.append(header)
+                header = "zhu2017coastal_{}".format(rel)
+                source_data[header] = calculate_zhu2017_coastal_probability(
+                    df[rel],
+                    source_data.vs30,
+                    source_data.precip,
+                    source_data.dc,
+                    source_data.dr,
+                )
+                trimmed_columns.append(header)
+                columns.append(header)
+
         source_data_trimmed = source_data[trimmed_columns]
         df = df.merge(
             source_data_trimmed, left_on=[lat_col, lon_col], right_on=["lat", "lon"]
@@ -209,13 +240,8 @@ def calculate_zhu2016_susceptibility(
 def calculate_zhu2016_probability(
     pgv, vs30, precipitation, distance_to_coast, distance_to_rivers, water_table_depth
 ):
-    return (
-        8.801
-        + pgv * 0.334
-        + np.log(vs30) * -1.918
-        + precipitation * 0.0005408
-        + np.minimum(distance_to_coast, distance_to_rivers) * -0.2054
-        + water_table_depth * -0.0333
+    return pgv * 0.334 + calculate_zhu2016_susceptibility(
+        vs30, precipitation, distance_to_coast, distance_to_rivers, water_table_depth
     )
 
 
@@ -237,6 +263,26 @@ def calculate_zhu2017_probability(
     )
 
 
+def calculate_zhu2015_coastal_probability(scaled_pga, cti, vs30):
+    return 24.10 + scaled_pga * 2.067 + cti * 0.355 + np.log(vs30) * -4.784
+
+
+def calculate_zhu2016_coastal_probability(pgv, vs30, precip, dc, dr):
+    return (
+        12.435
+        + np.log(pgv) * 0.301
+        + np.log(vs30) * -2.615
+        + precip * 0.0005556
+        + np.pow(dc, 0.5) * -0.0287
+        + dr * 0.0666
+        + np.pow(dc, 0.5) * dr * -0.0369
+    )
+
+
+def calculate_zhu2017_coastal_probability(pgv, vs30, precip, dc, dr):
+    return calculate_zhu2016_coastal_probability(pgv, vs30, precip, dc, dr)
+
+
 def calculate_jessee2017_susceptibility(slope, rock, cti, landcover):
     return (
         -6.3
@@ -249,12 +295,8 @@ def calculate_jessee2017_susceptibility(slope, rock, cti, landcover):
 
 def calculate_jessee2017_probability(pgv, slope, rock, cti, landcover):
     return (
-        -6.3
-        + np.log(pgv) * 1.65
-        + np.arctan(slope) * 0.06 * 180 / np.pi
-        + rock * 1
-        + cti * 0.03
-        + landcover * 1.0
+        np.log(pgv) * 1.65
+        + calculate_jessee2017_susceptibility(slope, rock, cti, landcover)
         + np.log(pgv) * np.arctan(slope) * 180 / np.pi * 0.01
     )
 
