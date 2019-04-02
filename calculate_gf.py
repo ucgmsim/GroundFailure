@@ -98,10 +98,20 @@ def calculate_gf(
     """Calculates groundfailure at specified locations and stores it in output_file"""
     with open(input_file, encoding="utf8", errors="backslashreplace") as in_fd:
         df = pd.read_csv(in_fd)
-    df.columns = [x.lower() if x.lower() not in ["lon", "long"] else "lon" for x in list(df.columns)]
+    df.columns = [
+        x.lower() if x.lower() not in ["lon", "long"] else "lon"
+        for x in list(df.columns)
+    ]
 
-    pgv_realisations = list(filter(lambda x: x if ("pgv_" in x and "pgv_scaled_" not in x) else None, df.columns))
-    pgv_scaled_realisations = list(filter(lambda x: x if "pgv_scaled_" in x else None, df.columns))
+    pgv_realisations = list(
+        filter(
+            lambda x: x if ("pgv_" in x and "pgv_scaled_" not in x) else None,
+            df.columns,
+        )
+    )
+    pgv_scaled_realisations = list(
+        filter(lambda x: x if "pgv_scaled_" in x else None, df.columns)
+    )
 
     with tempfile.TemporaryDirectory() as tmp_folder:
         xy_file = os.path.join(tmp_folder, "points.xy")
@@ -132,9 +142,7 @@ def calculate_gf(
 
             for rel in pgv_realisations:
                 header = "jesse2017_{}".format(rel)
-                source_data[
-                    header
-                ] = calculate_jessee2017_probability(
+                source_data[header] = calculate_jessee2017_probability(
                     df[rel],
                     source_data.slope,
                     source_data.rock,
@@ -202,19 +210,31 @@ def calculate_zhu2016_probability(
     pgv, vs30, precipitation, distance_to_coast, distance_to_rivers, water_table_depth
 ):
     return (
-            8.801
-            + pgv * 0.334
-            + np.log(vs30) * -1.918
-            + precipitation * 0.0005408
-            + np.minimum(distance_to_coast, distance_to_rivers) * -0.2054
-            + water_table_depth * -0.0333
+        8.801
+        + pgv * 0.334
+        + np.log(vs30) * -1.918
+        + precipitation * 0.0005408
+        + np.minimum(distance_to_coast, distance_to_rivers) * -0.2054
+        + water_table_depth * -0.0333
     )
 
 
 def calculate_zhu2017_probability(
-    scaled_pgv, vs30, precipitation, distance_to_coast, distance_to_rivers, water_table_depth
+    scaled_pgv,
+    vs30,
+    precipitation,
+    distance_to_coast,
+    distance_to_rivers,
+    water_table_depth,
 ):
-    return calculate_zhu2016_probability(scaled_pgv, vs30, precipitation, distance_to_coast, distance_to_rivers, water_table_depth)
+    return calculate_zhu2016_probability(
+        scaled_pgv,
+        vs30,
+        precipitation,
+        distance_to_coast,
+        distance_to_rivers,
+        water_table_depth,
+    )
 
 
 def calculate_jessee2017_susceptibility(slope, rock, cti, landcover):
@@ -235,7 +255,7 @@ def calculate_jessee2017_probability(pgv, slope, rock, cti, landcover):
         + rock * 1
         + cti * 0.03
         + landcover * 1.0
-        + np.log(pgv) * np.arctan(slope) * 180/np.pi * 0.01
+        + np.log(pgv) * np.arctan(slope) * 180 / np.pi * 0.01
     )
 
 
