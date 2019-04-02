@@ -12,6 +12,8 @@ import pandas as pd
 from h5py import File as h5open
 from qcore import imdb, simulation_structure
 
+scaled_ims = ["PGA", "PGV"]
+
 magnitudes = {}
 scale_functions = {
     "PGA": lambda pga, magnitude, **kwargs: log(
@@ -53,8 +55,9 @@ def imdb_finder(
     data = data.assign(CLOSEST_STATION="")
     data = data.assign(
         **{
-            "{}_{}".format(im, rel): "nan"
+            "{}_{}{}".format(im, scaled, rel): "nan"
             for im in intensity_measures
+            for scaled in (["", "scaled_"] if im in scaled_ims else [""])
             for rel in realisations
         }
     )
@@ -76,11 +79,14 @@ def imdb_finder(
             for rel in realisations:
                 if rel in intensity_measure_realisations:
                     kwargs = {}
-                    if im in ["PGA", "PGV"]:
+                    if im in scaled_ims:
                         kwargs.update({"magnitude": get_magnitude(sources_folder, rel)})
-                    data.at[i, "{}_{}".format(im, rel)] = scale_im(
-                        intensity_measure_realisations[rel], im, **kwargs
-                    )
+                        data.at[i, "{}_scaled_{}".format(im, rel)] = scale_im(
+                            intensity_measure_realisations[rel], im, **kwargs
+                        )
+                    data.at[
+                        i, "{}_{}".format(im, rel)
+                    ] = intensity_measure_realisations[rel]
 
     data.to_csv(output_file)
 
