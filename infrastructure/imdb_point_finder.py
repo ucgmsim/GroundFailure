@@ -35,8 +35,8 @@ def scale_im(im_val, im_name, **kwargs):
 def get_magnitude(sources_folder, realisation):
     if realisation not in magnitudes.keys():
         srf_path = path.join(
-            sources_folder, simulation_structure.get_srf_location(realisation)
-        ).replace(".srf", ".info")
+            sources_folder, simulation_structure.get_srf_info_location(realisation)
+        )
         with h5open(srf_path, "r") as srf_file:
             magnitudes.update({realisation: srf_file.attrs["mag"]})
     return magnitudes[realisation]
