@@ -95,9 +95,13 @@ def interpolate_input_grid(model_dirs, xy_file, inputs_file, gfe_type):
 def calculate_gf(
     input_file, output_file, models_dir, gfe_type, store_susceptibility=False
 ):
-    """Calculates groundfailure at specified locations and stores it in output_file # I feel like this comment is redundant"""
+    """Calculates groundfailure at specified locations and stores it in output_file"""
     with open(input_file, encoding="utf8", errors="backslashreplace") as in_fd:
         df = pd.read_csv(in_fd)
+    df.columns = [x.lower() if x.lower() not in ["lon", "long"] else "lon" for x in list(df.columns)]
+
+    pgv_realisations = list(filter(lambda x: x if ("pgv_" in x and "pgv_scaled_" not in x) else None, df.columns))
+    pgv_scaled_realisations = list(filter(lambda x: x if "pgv_scaled_" in x else None, df.columns))
 
     with tempfile.TemporaryDirectory() as tmp_folder:
         xy_file = os.path.join(tmp_folder, "points.xy")
@@ -122,9 +126,24 @@ def calculate_gf(
                 source_data.cti,
                 source_data.landcover,
             )
+            trimmed_columns.append("jesse2017_susceptibility")
             if store_susceptibility:
                 columns.append("jesse2017_susceptibility")
-            trimmed_columns.append("jesse2017_susceptibility")
+
+            for rel in pgv_realisations:
+                header = "jesse2017_{}".format(rel)
+                source_data[
+                    header
+                ] = calculate_jessee2017_probability(
+                    df[rel],
+                    source_data.slope,
+                    source_data.rock,
+                    source_data.cti,
+                    source_data.landcover,
+                )
+                trimmed_columns.append(header)
+                columns.append(header)
+
         if gfe_types.zhu2016 in gfe_type:
             source_data["zhu2016_susceptibility"] = calculate_zhu2016_susceptibility(
                 source_data.vs30,
@@ -132,9 +151,34 @@ def calculate_gf(
                 source_data.distance_to_rivers,
                 source_data.water_table_depth,
             )
+            trimmed_columns.append("zhu2016_susceptibility")
             if store_susceptibility:
                 columns.append("zhu2016_susceptibility")
-            trimmed_columns.append("zhu2016_susceptibility")
+
+            for rel in pgv_realisations:
+                header = "zhu2016_{}".format(rel)
+                source_data[header] = calculate_zhu2016_probability(
+                    df[rel],
+                    source_data.vs30,
+                    source_data.precipitation,
+                    source_data.distance_to_rivers,
+                    source_data.water_table_depth,
+                )
+                trimmed_columns.append(header)
+                columns.append(header)
+
+            for rel in pgv_scaled_realisations:
+                header = "zhu2017_{}".format(rel)
+                source_data[header] = calculate_zhu2017_probability(
+                    df[rel],
+                    source_data.vs30,
+                    source_data.precipitation,
+                    source_data.distance_to_rivers,
+                    source_data.water_table_depth,
+                )
+                trimmed_columns.append(header)
+                columns.append(header)
+
         source_data_trimmed = source_data[trimmed_columns]
         df = df.merge(
             source_data_trimmed, left_on=[lat_col, lon_col], right_on=["lat", "lon"]
@@ -154,6 +198,25 @@ def calculate_zhu2016_susceptibility(
     )
 
 
+def calculate_zhu2016_probability(
+    pgv, vs30, precipitation, distance_to_coast, distance_to_rivers, water_table_depth
+):
+    return (
+            8.801
+            + pgv * 0.334
+            + np.log(vs30) * -1.918
+            + precipitation * 0.0005408
+            + np.minimum(distance_to_coast, distance_to_rivers) * -0.2054
+            + water_table_depth * -0.0333
+    )
+
+
+def calculate_zhu2017_probability(
+    scaled_pgv, vs30, precipitation, distance_to_coast, distance_to_rivers, water_table_depth
+):
+    return calculate_zhu2016_probability(scaled_pgv, vs30, precipitation, distance_to_coast, distance_to_rivers, water_table_depth)
+
+
 def calculate_jessee2017_susceptibility(slope, rock, cti, landcover):
     return (
         -6.3
@@ -161,6 +224,18 @@ def calculate_jessee2017_susceptibility(slope, rock, cti, landcover):
         + rock * 1
         + cti * 0.03
         + landcover * 1.0
+    )
+
+
+def calculate_jessee2017_probability(pgv, slope, rock, cti, landcover):
+    return (
+        -6.3
+        + np.log(pgv) * 1.65
+        + np.arctan(slope) * 0.06 * 180 / np.pi
+        + rock * 1
+        + cti * 0.03
+        + landcover * 1.0
+        + np.log(pgv) * np.arctan(slope) * 180/np.pi * 0.01
     )
 
 
@@ -181,9 +256,6 @@ def main():
     )
     parser.add_argument(
         "--susceptibility", "-s", help="Flag indicating to store susceptibility"
-    )
-    parser.add_argument(
-        "--im_file", "-i", help="File containing an IM_csv for probability calculations"
     )
     parser.add_argument(
         "--models_dir",
