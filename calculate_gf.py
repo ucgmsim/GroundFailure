@@ -12,8 +12,8 @@ import subprocess
 from enum import Enum
 
 import pandas as pd
-import matplotlib.pyplot as plt
-import numpy as np
+
+from USGS_models import calculations
 
 
 class gfe_types(Enum):
@@ -133,7 +133,7 @@ def calculate_gf(
         if gfe_types.jessee2017 in gfe_type:
             source_data[
                 "jesse2017_susceptibility"
-            ] = calculate_jessee2017_susceptibility(
+            ] = calculations.calculate_jessee2017_susceptibility(
                 source_data.slope,
                 source_data.rock,
                 source_data.cti,
@@ -145,7 +145,7 @@ def calculate_gf(
 
             for rel in pgv_realisations:
                 header = "jesse2017_probability_{}".format(rel)
-                source_data[header] = calculate_jessee2017_probability(
+                source_data[header] = calculations.calculate_jessee2017_probability(
                     df[rel],
                     source_data.slope,
                     source_data.rock,
@@ -156,9 +156,12 @@ def calculate_gf(
                 columns.append(header)
 
         if gfe_types.zhu2016 in gfe_type:
-            source_data["zhu2016_susceptibility"] = calculate_zhu2016_susceptibility(
+            source_data[
+                "zhu2016_susceptibility"
+            ] = calculations.calculate_zhu2016_susceptibility(
                 source_data.vs30,
                 source_data.precipitation,
+                source_data.distance_to_coast,
                 source_data.distance_to_rivers,
                 source_data.water_table_depth,
             )
@@ -168,10 +171,11 @@ def calculate_gf(
 
             for rel in pgv_realisations:
                 header = "zhu2016_coverage_{}".format(rel)
-                source_data[header] = calculate_zhu2016_coverage(
+                source_data[header] = calculations.calculate_zhu2016_coverage(
                     df[rel],
                     source_data.vs30,
                     source_data.precipitation,
+                    source_data.distance_to_coast,
                     source_data.distance_to_rivers,
                     source_data.water_table_depth,
                 )
@@ -180,10 +184,11 @@ def calculate_gf(
 
             for rel in pgv_scaled_realisations:
                 header = "zhu2017_coverage_{}".format(rel)
-                source_data[header] = calculate_zhu2017_coverage(
+                source_data[header] = calculations.calculate_zhu2017_coverage(
                     df[rel],
                     source_data.vs30,
                     source_data.precipitation,
+                    source_data.distance_to_coast,
                     source_data.distance_to_rivers,
                     source_data.water_table_depth,
                 )
@@ -192,13 +197,13 @@ def calculate_gf(
 
             for rel in pga_scaled_realisations:
                 header = "zhu2015_coastal_coverage_{}".format(rel)
-                source_data[header] = calculate_zhu2015_coastal_coverage(
+                source_data[header] = calculations.calculate_zhu2015_coastal_coverage(
                     df[rel], source_data.cti, source_data.vs30
                 )
                 trimmed_columns.append(header)
                 columns.append(header)
                 header = "zhu2016_coastal_coverage_{}".format(rel)
-                source_data[header] = calculate_zhu2016_coastal_coverage(
+                source_data[header] = calculations.calculate_zhu2016_coastal_coverage(
                     df[rel],
                     source_data.vs30,
                     source_data.precip,
@@ -208,7 +213,7 @@ def calculate_gf(
                 trimmed_columns.append(header)
                 columns.append(header)
                 header = "zhu2017_coastal_coverage_{}".format(rel)
-                source_data[header] = calculate_zhu2017_coastal_coverage(
+                source_data[header] = calculations.calculate_zhu2017_coastal_coverage(
                     df[rel],
                     source_data.vs30,
                     source_data.precip,
@@ -223,102 +228,6 @@ def calculate_gf(
             source_data_trimmed, left_on=[lat_col, lon_col], right_on=["lat", "lon"]
         )
     df.to_csv(output_file, columns=columns, index=False, sep=",")
-
-
-def calculate_zhu2016_susceptibility(
-    vs30, precipitation, distance_to_coast, distance_to_rivers, water_table_depth
-):
-    return (
-        8.801
-        + np.log(vs30) * -1.918
-        + precipitation * 0.0005408
-        + np.minimum(distance_to_coast, distance_to_rivers) * -0.2054
-        + water_table_depth * -0.0333
-    )
-
-
-def calculate_zhu2016_coverage(
-    pgv, vs30, precipitation, distance_to_coast, distance_to_rivers, water_table_depth
-):
-    p = probability_transform(
-        pgv * 0.334
-        + calculate_zhu2016_susceptibility(
-            vs30,
-            precipitation,
-            distance_to_coast,
-            distance_to_rivers,
-            water_table_depth,
-        )
-    )
-    return 0.4915/(1 + 42.40 * np.exp(-9.165*p))**2
-
-
-def calculate_zhu2017_coverage(
-    scaled_pgv,
-    vs30,
-    precipitation,
-    distance_to_coast,
-    distance_to_rivers,
-    water_table_depth,
-):
-    return calculate_zhu2016_coverage(
-        scaled_pgv,
-        vs30,
-        precipitation,
-        distance_to_coast,
-        distance_to_rivers,
-        water_table_depth,
-    )
-
-
-def calculate_zhu2015_coastal_coverage(scaled_pga, cti, vs30):
-    p = probability_transform(
-        24.10 + scaled_pga * 2.067 + cti * 0.355 + np.log(vs30) * -4.784
-    )
-    return 0.81*p
-
-
-def calculate_zhu2016_coastal_coverage(pgv, vs30, precip, dc, dr):
-    p = probability_transform(
-        12.435
-        + np.log(pgv) * 0.301
-        + np.log(vs30) * -2.615
-        + precip * 0.0005556
-        + np.pow(dc, 0.5) * -0.0287
-        + dr * 0.0666
-        + np.pow(dc, 0.5) * dr * -0.0369
-    )
-    return 0.4208 / (1 + 62.59 * np.exp(-11.43 * p)) ** 2
-
-
-def calculate_zhu2017_coastal_coverage(pgv, vs30, precip, dc, dr):
-    return calculate_zhu2016_coastal_coverage(pgv, vs30, precip, dc, dr)
-
-
-def calculate_jessee2017_susceptibility(slope, rock, cti, landcover):
-    return (
-        -6.3
-        + np.arctan(slope) * 0.06 * 180 / np.pi
-        + rock * 1
-        + cti * 0.03
-        + landcover * 1.0
-    )
-
-
-def calculate_jessee2017_probability(pgv, slope, rock, cti, landcover):
-    p = probability_transform(
-        np.log(pgv) * 1.65
-        + calculate_jessee2017_susceptibility(slope, rock, cti, landcover)
-        + np.log(pgv) * np.arctan(slope) * 180 / np.pi * 0.01
-    )
-    return np.exp(-7.592 + 5.237 * p - 3.042 * p ** 2 + 4.035 * p ** 3)
-
-
-def probability_transform(p):
-    """
-    The inverse of the equation -np.log(1/P-1).
-    Verification of this is left as an exercise to the reader."""
-    return np.exp(p)/(np.exp(p) + 1)
 
 
 def main():
