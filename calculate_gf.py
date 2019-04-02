@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
-# Calculates Ground Failure (liquefaction & landslide) susceptibility & probability at points specified by the input files.
-# Depends on GMT binaries being in the path
+"""
+Calculates Ground Failure (liquefaction & landslide) susceptibility & probability at points specified by the input files.
+Depends on GMT binaries being in the path
+"""
 
 import argparse
 import tempfile
@@ -20,12 +22,12 @@ class gfe_types(Enum):
 
 
 def get_model_path(model_dir, model):
-    # Returns path to a model file as an input argument to GMT functions
+    """Returns path to a model file as an input argument to GMT functions"""
     return "-G" + str(os.path.join(model_dir, model))
 
 
 def get_models(model_dir, gfe_type):
-    # Determines the models needed for the specific GroundFailure type
+    """Determines the models needed for the specific GroundFailure type"""
     models = []
     if gfe_types.zhu2016 in gfe_type:
         distance_to_coast = get_model_path(model_dir, "nz_dc_km.grd")
@@ -55,7 +57,7 @@ def get_models(model_dir, gfe_type):
 
 
 def get_cols(df):
-    # Finds the columns indicated
+    """Finds the columns indicated"""
     lon_col = lat_col = None
     column_names = [str.lower(name.strip()[0:3]) for name in df.columns.values]
     if "lon" in column_names:
@@ -70,7 +72,7 @@ def get_cols(df):
 
 
 def interpolate_input_grid(model_dirs, xy_file, inputs_file, gfe_type):
-    # Uses grdtrack to sample the groundfailure input grids and write their values to `inputs_file`
+    """Uses grdtrack to sample the groundfailure input grids and write their values to `inputs_file`"""
     models = get_models(model_dirs, gfe_type)
     with open(inputs_file, "w") as inputs_fp:
         columns = "lon	lat"
@@ -93,7 +95,7 @@ def interpolate_input_grid(model_dirs, xy_file, inputs_file, gfe_type):
 def calculate_gf(
     input_file, output_file, models_dir, gfe_type, store_susceptibility=False
 ):
-    # calculates groundfailure at specified locations and stores it in output_file # I feel like this comment is redundant
+    """Calculates groundfailure at specified locations and stores it in output_file # I feel like this comment is redundant"""
     with open(input_file, encoding="utf8", errors="backslashreplace") as in_fd:
         df = pd.read_csv(in_fd)
 
