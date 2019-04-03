@@ -15,49 +15,32 @@ def calculate_zhu2016_susceptibility(
     )
 
 
-def calculate_zhu2016_coverage(
-    pgv, vs30, precipitation, distance_to_coast, distance_to_rivers, water_table_depth
+def calculate_zhu2017_susceptibility(
+    vs30, precipitation, distance_to_coast, distance_to_rivers, water_table_depth
 ):
-    p = probability_transform(
-        pgv * 0.334
-        + calculate_zhu2016_susceptibility(
-            vs30,
-            precipitation,
-            distance_to_coast,
-            distance_to_rivers,
-            water_table_depth,
-        )
+    return calculate_zhu2016_susceptibility(
+        vs30, precipitation, distance_to_coast, distance_to_rivers, water_table_depth
     )
+
+
+def calculate_zhu2016_coverage(pgv, susceptibility):
+    p = raw_probability_transform(pgv * 0.334 + susceptibility)
     return 0.4915 / (1 + 42.40 * np.exp(-9.165 * p)) ** 2
 
 
-def calculate_zhu2017_coverage(
-    scaled_pgv,
-    vs30,
-    precipitation,
-    distance_to_coast,
-    distance_to_rivers,
-    water_table_depth,
-):
-    return calculate_zhu2016_coverage(
-        scaled_pgv,
-        vs30,
-        precipitation,
-        distance_to_coast,
-        distance_to_rivers,
-        water_table_depth,
-    )
+def calculate_zhu2017_coverage(scaled_pgv, susceptibility):
+    return calculate_zhu2016_coverage(scaled_pgv, susceptibility)
 
 
 def calculate_zhu2015_coastal_coverage(scaled_pga, cti, vs30):
-    p = probability_transform(
+    p = raw_probability_transform(
         24.10 + scaled_pga * 2.067 + cti * 0.355 + np.log(vs30) * -4.784
     )
     return 0.81 * p
 
 
 def calculate_zhu2016_coastal_coverage(pgv, vs30, precip, dc, dr):
-    p = probability_transform(
+    p = raw_probability_transform(
         12.435
         + np.log(pgv) * 0.301
         + np.log(vs30) * -2.615
@@ -83,16 +66,16 @@ def calculate_jessee2017_susceptibility(slope, rock, cti, landcover):
     )
 
 
-def calculate_jessee2017_probability(pgv, slope, rock, cti, landcover):
-    p = probability_transform(
+def calculate_jessee2017_coverage(pgv, slope, susceptibility):
+    p = raw_probability_transform(
         np.log(pgv) * 1.65
-        + calculate_jessee2017_susceptibility(slope, rock, cti, landcover)
+        + susceptibility
         + np.log(pgv) * np.arctan(slope) * 180 / np.pi * 0.01
     )
     return np.exp(-7.592 + 5.237 * p - 3.042 * p ** 2 + 4.035 * p ** 3)
 
 
-def probability_transform(p):
+def raw_probability_transform(p):
     """
     The inverse of the equation -np.log(1/P-1).
     Verification of this is left as an exercise to the reader."""

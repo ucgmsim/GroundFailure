@@ -17,7 +17,11 @@ from USGS_models import calculations
 
 
 class gfe_types(Enum):
+    zhu2015_coastal = "zhu2015_coastal"
     zhu2016 = "zhu2016"
+    zhu2016_coastal = "zhu2016_coastal"
+    zhu2017 = "zhu2017"
+    zhu2017_coastal = "zhu2017_coastal"
     jessee2017 = "jessee2017"
 
 
@@ -145,12 +149,17 @@ def calculate_gf(
 
             for rel in pgv_realisations:
                 header = "jesse2017_probability_{}".format(rel)
-                source_data[header] = calculations.calculate_jessee2017_probability(
-                    df[rel],
-                    source_data.slope,
-                    source_data.rock,
-                    source_data.cti,
-                    source_data.landcover,
+                source_data[header] = calculations.calculate_jessee2017_coverage(
+                    df[rel], source_data.slope, source_data["jesse2017_susceptibility"]
+                )
+                trimmed_columns.append(header)
+                columns.append(header)
+
+        if gfe_types.zhu2015_coastal in gfe_type:
+            for rel in pga_scaled_realisations:
+                header = "zhu2015_coastal_probability_{}".format(rel)
+                source_data[header] = calculations.calculate_zhu2015_coastal_coverage(
+                    df[rel], source_data.cti, source_data.vs30
                 )
                 trimmed_columns.append(header)
                 columns.append(header)
@@ -170,39 +179,16 @@ def calculate_gf(
                 columns.append("zhu2016_susceptibility")
 
             for rel in pgv_realisations:
-                header = "zhu2016_coverage_{}".format(rel)
+                header = "zhu2016_probability_{}".format(rel)
                 source_data[header] = calculations.calculate_zhu2016_coverage(
-                    df[rel],
-                    source_data.vs30,
-                    source_data.precipitation,
-                    source_data.distance_to_coast,
-                    source_data.distance_to_rivers,
-                    source_data.water_table_depth,
+                    df[rel], source_data["zhu2016_susceptibility"]
                 )
                 trimmed_columns.append(header)
                 columns.append(header)
 
-            for rel in pgv_scaled_realisations:
-                header = "zhu2017_coverage_{}".format(rel)
-                source_data[header] = calculations.calculate_zhu2017_coverage(
-                    df[rel],
-                    source_data.vs30,
-                    source_data.precipitation,
-                    source_data.distance_to_coast,
-                    source_data.distance_to_rivers,
-                    source_data.water_table_depth,
-                )
-                trimmed_columns.append(header)
-                columns.append(header)
-
-            for rel in pga_scaled_realisations:
-                header = "zhu2015_coastal_coverage_{}".format(rel)
-                source_data[header] = calculations.calculate_zhu2015_coastal_coverage(
-                    df[rel], source_data.cti, source_data.vs30
-                )
-                trimmed_columns.append(header)
-                columns.append(header)
-                header = "zhu2016_coastal_coverage_{}".format(rel)
+        if gfe_types.zhu2016_coastal in gfe_type:
+            for rel in pgv_realisations:
+                header = "zhu2016_coastal_probability_{}".format(rel)
                 source_data[header] = calculations.calculate_zhu2016_coastal_coverage(
                     df[rel],
                     source_data.vs30,
@@ -212,7 +198,31 @@ def calculate_gf(
                 )
                 trimmed_columns.append(header)
                 columns.append(header)
-                header = "zhu2017_coastal_coverage_{}".format(rel)
+
+        if gfe_types.zhu2017 in gfe_type:
+            source_data[
+                "zhu2017_susceptibility"
+            ] = calculations.calculate_zhu2016_susceptibility(
+                source_data.vs30,
+                source_data.precipitation,
+                source_data.distance_to_coast,
+                source_data.distance_to_rivers,
+                source_data.water_table_depth,
+            )
+            trimmed_columns.append("zhu2017_susceptibility")
+            if store_susceptibility:
+                columns.append("zhu2017_susceptibility")
+            for rel in pgv_scaled_realisations:
+                header = "zhu2017_probability_{}".format(rel)
+                source_data[header] = calculations.calculate_zhu2017_coverage(
+                    df[rel], source_data["zhu2017_susceptibility"]
+                )
+                trimmed_columns.append(header)
+                columns.append(header)
+
+        if gfe_types.zhu2017_coastal in gfe_type:
+            for rel in pgv_realisations:
+                header = "zhu2017_coastal_probability_{}".format(rel)
                 source_data[header] = calculations.calculate_zhu2017_coastal_coverage(
                     df[rel],
                     source_data.vs30,
