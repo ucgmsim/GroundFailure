@@ -251,7 +251,7 @@ def main():
     parser.add_argument(
         "--gfe_type",
         "-g",
-        choices=list(map(lambda x: x.value, gfe_types)),
+        choices=[x.value for x in gfe_types],
         required=True,
         nargs="+",
     )
