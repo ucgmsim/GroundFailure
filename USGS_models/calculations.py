@@ -25,7 +25,10 @@ def calculate_zhu2017_susceptibility(
 
 def calculate_zhu2015_coverage(scaled_pga, compound_topographic_index, vs30):
     p = raw_probability_transform(
-        24.10 + scaled_pga * 2.067 + compound_topographic_index * 0.355 + np.log(vs30) * -4.784
+        24.10
+        + scaled_pga * 2.067
+        + compound_topographic_index * 0.355
+        + np.log(vs30) * -4.784
     )
     return 0.81 * p
 
@@ -39,7 +42,9 @@ def calculate_zhu2017_coverage(scaled_pgv, susceptibility):
     return calculate_zhu2016_coverage(scaled_pgv, susceptibility)
 
 
-def calculate_zhu2016_coastal_coverage(pgv, vs30, precip, distance_to_coast, distance_to_rivers):
+def calculate_zhu2016_coastal_coverage(
+    pgv, vs30, precip, distance_to_coast, distance_to_rivers
+):
     p = raw_probability_transform(
         12.435
         + np.log(pgv) * 0.301
