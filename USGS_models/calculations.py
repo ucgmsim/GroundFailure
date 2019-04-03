@@ -96,4 +96,4 @@ def probability_transform(p):
     """
     The inverse of the equation -np.log(1/P-1).
     Verification of this is left as an exercise to the reader."""
-    return np.exp(p) / (np.exp(p) + 1)
+    return 1 / (np.exp(-p) + 1)
