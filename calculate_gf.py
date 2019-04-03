@@ -17,7 +17,7 @@ from USGS_models import calculations
 
 
 class gfe_types(Enum):
-    zhu2015_coastal = "zhu2015_coastal"
+    zhu2015 = "zhu2015"
     zhu2016 = "zhu2016"
     zhu2016_coastal = "zhu2016_coastal"
     zhu2017 = "zhu2017"
@@ -155,10 +155,10 @@ def calculate_gf(
                 trimmed_columns.append(header)
                 columns.append(header)
 
-        if gfe_types.zhu2015_coastal in gfe_type:
+        if gfe_types.zhu2015 in gfe_type:
             for rel in pga_scaled_realisations:
                 header = "zhu2015_coastal_probability_{}".format(rel)
-                source_data[header] = calculations.calculate_zhu2015_coastal_coverage(
+                source_data[header] = calculations.calculate_zhu2015_coverage(
                     df[rel], source_data.cti, source_data.vs30
                 )
                 trimmed_columns.append(header)
@@ -251,7 +251,7 @@ def main():
     parser.add_argument(
         "--gfe_type",
         "-g",
-        choices=[gfe_types.zhu2016, gfe_types.jessee2017],
+        choices=list(map(lambda x: x.value, gfe_types)),
         required=True,
         nargs="+",
     )
@@ -270,7 +270,7 @@ def main():
         args.input_file,
         args.output_file,
         args.models_dir,
-        args.gfe_type,
+        [gfe_types(x) for x in args.gfe_type],
         args.susceptibility,
     )
 
