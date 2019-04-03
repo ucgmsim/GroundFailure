@@ -69,15 +69,17 @@ def main(imdb_fname, landslide_fname, liquefaction_fname, files, ims, realisatio
             realisation = restricted_realisations[0]
 
             # List of ims to use.
-            for im in ims:
-                output = os.path.join(
-                    args.output,
-                    os.path.basename(input_file.replace(".csv", "_" + im + ".csv")),
-                )
-                pool.apply_async(
-                    imdb_point_finder.imdb_finder,
-                    (imdb_fname, input_file, output, realisation.encode(), im.encode()),
-                )
+            output = os.path.join(args.output, os.path.basename(input_file))
+            pool.apply_async(
+                imdb_point_finder.imdb_finder,
+                (
+                    imdb_fname,
+                    input_file,
+                    output,
+                    realisation.encode(),
+                    [im.encode() for im in ims],
+                ),
+            )
 
     if landslide_fname != "None":
         for input_file in files:
