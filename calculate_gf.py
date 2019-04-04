@@ -80,13 +80,21 @@ def interpolate_input_grid(model_dirs, xy_file, inputs_file, gfe_type):
     models = get_models(model_dirs, gfe_type)
     with open(inputs_file, "w") as inputs_fp:
         columns = "lon	lat"
-        if gfe_types.zhu2016 in gfe_type:
+        if any(
+            [gfe in [gfe_types.zhu2016, gfe_types.zhu2016_coastal, gfe_types.zhu2017, gfe_types.zhu2017_coastal] for gfe in gfe_type]
+        ):
             columns = (
                 columns
-                + "	distance_to_coast	distance_to_rivers	precipitation	vs30	water_table_depth   dr  dc"
+                + "	distance_to_coast	distance_to_rivers	precipitation	vs30	water_table_depth"
             )
-        if "jesse2017" in gfe_type:
+        if gfe_types.jessee2017 in gfe_type:
             columns = columns + "	slope	rock	landcover	cti"
+        if gfe_types.zhu2015 in gfe_type:
+            if "cti" not in columns:
+                columns = columns + "   cti"
+            if "vs30" not in columns:
+                columns = columns + "   vs30"
+
         columns = columns + "\n"
         inputs_fp.write(columns)
         inputs_fp.flush()
@@ -156,10 +164,18 @@ def calculate_gf(
                 columns.append(header)
 
         if gfe_types.zhu2015 in gfe_type:
+            source_data[
+                "zhu2015_susceptibility"
+            ] = calculations.calculate_zhu2015_susceptibility(
+                source_data.cti, source_data.vs30
+            )
+            trimmed_columns.append("zhu2015_susceptibility")
+            if store_susceptibility:
+                columns.append("zhu2015_susceptibility")
             for rel in pga_scaled_realisations:
                 header = "zhu2015_coastal_probability_{}".format(rel)
                 source_data[header] = calculations.calculate_zhu2015_coverage(
-                    df[rel], source_data.cti, source_data.vs30
+                    df[rel], source_data["zhu2015_susceptibility"]
                 )
                 trimmed_columns.append(header)
                 columns.append(header)
@@ -187,14 +203,17 @@ def calculate_gf(
                 columns.append(header)
 
         if gfe_types.zhu2016_coastal in gfe_type:
+            header = "zhu2016_coastal_susceptibility"
+            source_data[header] = calculations.calculate_zhu2016_susceptibility(
+                source_data.vs30, source_data.precip, source_data.dc, source_data.dr
+            )
+            trimmed_columns.append(header)
+            if store_susceptibility:
+                columns.append(header)
             for rel in pgv_realisations:
                 header = "zhu2016_coastal_probability_{}".format(rel)
                 source_data[header] = calculations.calculate_zhu2016_coastal_coverage(
-                    df[rel],
-                    source_data.vs30,
-                    source_data.precip,
-                    source_data.dc,
-                    source_data.dr,
+                    df[rel], source_data["zhu2016_coastal_susceptibility"]
                 )
                 trimmed_columns.append(header)
                 columns.append(header)
@@ -221,14 +240,17 @@ def calculate_gf(
                 columns.append(header)
 
         if gfe_types.zhu2017_coastal in gfe_type:
+            header = "zhu2017_coastal_susceptibility"
+            source_data[header] = calculations.calculate_zhu2017_coastal_susceptibility(
+                source_data.vs30, source_data.precip, source_data.dc, source_data.dr
+            )
+            trimmed_columns.append(header)
+            if store_susceptibility:
+                columns.append(header)
             for rel in pgv_realisations:
                 header = "zhu2017_coastal_probability_{}".format(rel)
                 source_data[header] = calculations.calculate_zhu2017_coastal_coverage(
-                    df[rel],
-                    source_data.vs30,
-                    source_data.precip,
-                    source_data.dc,
-                    source_data.dr,
+                    df[rel], source_data["zhu2017_coastal_susceptibility"]
                 )
                 trimmed_columns.append(header)
                 columns.append(header)
@@ -256,7 +278,10 @@ def main():
         nargs="+",
     )
     parser.add_argument(
-        "--susceptibility", "-s", help="Flag indicating to store susceptibility"
+        "--susceptibility",
+        "-s",
+        help="Flag indicating to store susceptibility",
+        action="store_true",
     )
     parser.add_argument(
         "--models_dir",
