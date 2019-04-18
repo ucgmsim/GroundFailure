@@ -16,13 +16,68 @@ import pandas as pd
 from USGS_models import calculations
 
 
+param_to_model = {
+    "distance_to_coast": "nz_dc_km.grd",
+    "distance_to_rivers": "nz_dr_km.grd",
+    "precipitation": "nz_precip_fil_mm.grd",
+    "vs30": "nz_vs30_nz-specific-v18p4_100m.grd",
+    "water_table_depth": "nz_wtd_fil_na_m.grd",
+    "slope": "nz_grad.grd",
+    "rock": "nz_GLIM_replace.grd",
+    "landcover": "nz_globcover_replace.grd",
+    "cti": "nz_cti_fil.grd",
+}
+
+
 class gfe_types(Enum):
-    zhu2015 = "zhu2015"
-    zhu2016 = "zhu2016"
-    zhu2016_coastal = "zhu2016_coastal"
-    zhu2017 = "zhu2017"
-    zhu2017_coastal = "zhu2017_coastal"
-    jessee2017 = "jessee2017"
+    zhu2015 = "zhu2015", ("cti", "vs30")
+    zhu2016 = (
+        "zhu2016",
+        (
+            "distance_to_coast",
+            "distance_to_rivers",
+            "precipitation",
+            "vs30",
+            "water_table_depth",
+        ),
+    )
+    zhu2016_coastal = (
+        "zhu2016_coastal",
+        (
+            "distance_to_coast",
+            "distance_to_rivers",
+            "precipitation",
+            "vs30",
+            "water_table_depth",
+        ),
+    )
+    zhu2017 = (
+        "zhu2017",
+        (
+            "distance_to_coast",
+            "distance_to_rivers",
+            "precipitation",
+            "vs30",
+            "water_table_depth",
+        ),
+    )
+    zhu2017_coastal = (
+        "zhu2017_coastal",
+        (
+            "distance_to_coast",
+            "distance_to_rivers",
+            "precipitation",
+            "vs30",
+            "water_table_depth",
+        ),
+    )
+    jessee2017 = "jessee2017", ("slope", "rock", "landcover", "cti")
+
+    def __new__(cls, str_value, columns):
+        obj = object.__new__(cls)
+        obj.str_value = str_value
+        obj.columns = columns
+        return obj
 
 
 def get_model_path(model_dir, model):
@@ -32,31 +87,12 @@ def get_model_path(model_dir, model):
 
 def get_models(model_dir, gfe_type):
     """Determines the models needed for the specific GroundFailure type"""
+    params = set()
+    for gfe in gfe_type:
+        params.update(*gfe.columns)
     models = []
-    if gfe_types.zhu2016 in gfe_type:
-        distance_to_coast = get_model_path(model_dir, "nz_dc_km.grd")
-        distance_to_rivers = get_model_path(model_dir, "nz_dr_km.grd")
-        precipitation = get_model_path(model_dir, "nz_precip_fil_mm.grd")
-        vs30 = get_model_path(model_dir, "nz_vs30_nz-specific-v18p4_100m.grd")
-        water_table_depth = get_model_path(model_dir, "nz_wtd_fil_na_m.grd")
-
-        models.extend(
-            [
-                distance_to_coast,
-                distance_to_rivers,
-                precipitation,
-                vs30,
-                water_table_depth,
-            ]
-        )
-    if gfe_types.jessee2017 in gfe_type:
-        slope = get_model_path(model_dir, "nz_grad.grd")
-        lithography = get_model_path(model_dir, "nz_GLIM_replace.grd")
-        land_cover = get_model_path(model_dir, "nz_globcover_replace.grd")
-        cti = get_model_path(model_dir, "nz_cti_fil.grd")
-
-        models.extend([slope, lithography, land_cover, cti])
-
+    for model_type in params:
+        models.append(get_model_path(model_dir, param_to_model[model_type]))
     return models
 
 
@@ -81,7 +117,16 @@ def interpolate_input_grid(model_dirs, xy_file, inputs_file, gfe_type):
     with open(inputs_file, "w") as inputs_fp:
         columns = "lon	lat"
         if any(
-            [gfe in [gfe_types.zhu2016, gfe_types.zhu2016_coastal, gfe_types.zhu2017, gfe_types.zhu2017_coastal] for gfe in gfe_type]
+            [
+                gfe
+                in [
+                    gfe_types.zhu2016,
+                    gfe_types.zhu2016_coastal,
+                    gfe_types.zhu2017,
+                    gfe_types.zhu2017_coastal,
+                ]
+                for gfe in gfe_type
+            ]
         ):
             columns = (
                 columns
