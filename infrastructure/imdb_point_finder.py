@@ -79,7 +79,7 @@ def imdb_finder(
             for rel in realisations:
                 if rel in intensity_measure_realisations:
                     kwargs = {}
-                    if im in scaled_ims:
+                    if sources_folder is not None and im in scaled_ims:
                         kwargs.update({"magnitude": get_magnitude(sources_folder, rel)})
                         data.at[i, "{}_scaled_{}".format(im, rel)] = scale_im(
                             intensity_measure_realisations[rel], im, **kwargs
@@ -114,11 +114,6 @@ if __name__ == "__main__":
         default=None,
     )
     args = parser.parse_args()
-
-    if ("PGA" in args.im or "PGV" in args.im) and args.source_dir is None:
-        parser.error(
-            "--source_dir must be given for the correct calculation of PGA and PGV"
-        )
 
     imdb_finder(
         args.imdb, args.input, args.output, args.realisation, args.im, args.source_dir

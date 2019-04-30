@@ -12,13 +12,72 @@ import subprocess
 from enum import Enum
 
 import pandas as pd
-import matplotlib.pyplot as plt
-import numpy as np
+
+from USGS_models import calculations
+
+
+param_to_model = {
+    "distance_to_coast": "nz_dc_km.grd",
+    "distance_to_rivers": "nz_dr_km.grd",
+    "precipitation": "nz_precip_fil_mm.grd",
+    "vs30": "nz_vs30_nz-specific-v18p4_100m.grd",
+    "water_table_depth": "nz_wtd_fil_na_m.grd",
+    "slope": "nz_grad.grd",
+    "rock": "nz_GLIM_replace.grd",
+    "landcover": "nz_globcover_replace.grd",
+    "cti": "nz_cti_fil.grd",
+}
 
 
 class gfe_types(Enum):
-    zhu2016 = "zhu2016"
-    jessee2017 = "jessee2017"
+    zhu2015 = "zhu2015", ("cti", "vs30")
+    zhu2016 = (
+        "zhu2016",
+        (
+            "distance_to_coast",
+            "distance_to_rivers",
+            "precipitation",
+            "vs30",
+            "water_table_depth",
+        ),
+    )
+    zhu2016_coastal = (
+        "zhu2016_coastal",
+        (
+            "distance_to_coast",
+            "distance_to_rivers",
+            "precipitation",
+            "vs30",
+            "water_table_depth",
+        ),
+    )
+    zhu2017 = (
+        "zhu2017",
+        (
+            "distance_to_coast",
+            "distance_to_rivers",
+            "precipitation",
+            "vs30",
+            "water_table_depth",
+        ),
+    )
+    zhu2017_coastal = (
+        "zhu2017_coastal",
+        (
+            "distance_to_coast",
+            "distance_to_rivers",
+            "precipitation",
+            "vs30",
+            "water_table_depth",
+        ),
+    )
+    jessee2017 = "jessee2017", ("slope", "rock", "landcover", "cti")
+
+    def __new__(cls, str_value, columns):
+        obj = object.__new__(cls)
+        obj.str_value = str_value
+        obj.columns = columns
+        return obj
 
 
 def get_model_path(model_dir, model):
@@ -28,31 +87,12 @@ def get_model_path(model_dir, model):
 
 def get_models(model_dir, gfe_type):
     """Determines the models needed for the specific GroundFailure type"""
+    params = set()
+    for gfe in gfe_type:
+        params.update(*gfe.columns)
     models = []
-    if gfe_types.zhu2016 in gfe_type:
-        distance_to_coast = get_model_path(model_dir, "nz_dc_km.grd")
-        distance_to_rivers = get_model_path(model_dir, "nz_dr_km.grd")
-        precipitation = get_model_path(model_dir, "nz_precip_fil_mm.grd")
-        vs30 = get_model_path(model_dir, "nz_vs30_nz-specific-v18p4_100m.grd")
-        water_table_depth = get_model_path(model_dir, "nz_wtd_fil_na_m.grd")
-
-        models.extend(
-            [
-                distance_to_coast,
-                distance_to_rivers,
-                precipitation,
-                vs30,
-                water_table_depth,
-            ]
-        )
-    if gfe_types.jessee2017 in gfe_type:
-        slope = get_model_path(model_dir, "nz_grad.grd")
-        lithography = get_model_path(model_dir, "nz_GLIM_replace.grd")
-        land_cover = get_model_path(model_dir, "nz_globcover_replace.grd")
-        cti = get_model_path(model_dir, "nz_cti_fil.grd")
-
-        models.extend([slope, lithography, land_cover, cti])
-
+    for model_type in params:
+        models.append(get_model_path(model_dir, param_to_model[model_type]))
     return models
 
 
@@ -76,13 +116,30 @@ def interpolate_input_grid(model_dirs, xy_file, inputs_file, gfe_type):
     models = get_models(model_dirs, gfe_type)
     with open(inputs_file, "w") as inputs_fp:
         columns = "lon	lat"
-        if gfe_types.zhu2016 in gfe_type:
+        if any(
+            [
+                gfe
+                in [
+                    gfe_types.zhu2016,
+                    gfe_types.zhu2016_coastal,
+                    gfe_types.zhu2017,
+                    gfe_types.zhu2017_coastal,
+                ]
+                for gfe in gfe_type
+            ]
+        ):
             columns = (
                 columns
                 + "	distance_to_coast	distance_to_rivers	precipitation	vs30	water_table_depth"
             )
-        if "jesse2017" in gfe_type:
+        if gfe_types.jessee2017 in gfe_type:
             columns = columns + "	slope	rock	landcover	cti"
+        if gfe_types.zhu2015 in gfe_type:
+            if "cti" not in columns:
+                columns = columns + "   cti"
+            if "vs30" not in columns:
+                columns = columns + "   vs30"
+
         columns = columns + "\n"
         inputs_fp.write(columns)
         inputs_fp.flush()
@@ -95,9 +152,26 @@ def interpolate_input_grid(model_dirs, xy_file, inputs_file, gfe_type):
 def calculate_gf(
     input_file, output_file, models_dir, gfe_type, store_susceptibility=False
 ):
-    """Calculates groundfailure at specified locations and stores it in output_file # I feel like this comment is redundant"""
+    """Calculates groundfailure at specified locations and stores it in output_file"""
     with open(input_file, encoding="utf8", errors="backslashreplace") as in_fd:
         df = pd.read_csv(in_fd)
+    df.columns = [
+        x.lower() if x.lower() not in ["lon", "long"] else "lon"
+        for x in list(df.columns)
+    ]
+
+    pgv_realisations = list(
+        filter(
+            lambda x: x if ("pgv_" in x and "pgv_scaled_" not in x) else None,
+            df.columns,
+        )
+    )
+    pgv_scaled_realisations = list(
+        filter(lambda x: x if "pgv_scaled_" in x else None, df.columns)
+    )
+    pga_scaled_realisations = list(
+        filter(lambda x: x if "pga_scaled_" in x else None, df.columns)
+    )
 
     with tempfile.TemporaryDirectory() as tmp_folder:
         xy_file = os.path.join(tmp_folder, "points.xy")
@@ -116,52 +190,121 @@ def calculate_gf(
         if gfe_types.jessee2017 in gfe_type:
             source_data[
                 "jesse2017_susceptibility"
-            ] = calculate_jessee2017_susceptibility(
+            ] = calculations.calculate_jessee2017_susceptibility(
                 source_data.slope,
                 source_data.rock,
                 source_data.cti,
                 source_data.landcover,
             )
+            trimmed_columns.append("jesse2017_susceptibility")
             if store_susceptibility:
                 columns.append("jesse2017_susceptibility")
-            trimmed_columns.append("jesse2017_susceptibility")
+
+            for rel in pgv_realisations:
+                header = "jesse2017_probability_{}".format(rel)
+                source_data[header] = calculations.calculate_jessee2017_coverage(
+                    df[rel], source_data.slope, source_data["jesse2017_susceptibility"]
+                )
+                trimmed_columns.append(header)
+                columns.append(header)
+
+        if gfe_types.zhu2015 in gfe_type:
+            source_data[
+                "zhu2015_susceptibility"
+            ] = calculations.calculate_zhu2015_susceptibility(
+                source_data.cti, source_data.vs30
+            )
+            trimmed_columns.append("zhu2015_susceptibility")
+            if store_susceptibility:
+                columns.append("zhu2015_susceptibility")
+            for rel in pga_scaled_realisations:
+                header = "zhu2015_coastal_probability_{}".format(rel)
+                source_data[header] = calculations.calculate_zhu2015_coverage(
+                    df[rel], source_data["zhu2015_susceptibility"]
+                )
+                trimmed_columns.append(header)
+                columns.append(header)
+
         if gfe_types.zhu2016 in gfe_type:
-            source_data["zhu2016_susceptibility"] = calculate_zhu2016_susceptibility(
+            source_data[
+                "zhu2016_susceptibility"
+            ] = calculations.calculate_zhu2016_susceptibility(
                 source_data.vs30,
                 source_data.precipitation,
+                source_data.distance_to_coast,
                 source_data.distance_to_rivers,
                 source_data.water_table_depth,
             )
+            trimmed_columns.append("zhu2016_susceptibility")
             if store_susceptibility:
                 columns.append("zhu2016_susceptibility")
-            trimmed_columns.append("zhu2016_susceptibility")
+
+            for rel in pgv_realisations:
+                header = "zhu2016_probability_{}".format(rel)
+                source_data[header] = calculations.calculate_zhu2016_coverage(
+                    df[rel], source_data["zhu2016_susceptibility"]
+                )
+                trimmed_columns.append(header)
+                columns.append(header)
+
+        if gfe_types.zhu2016_coastal in gfe_type:
+            header = "zhu2016_coastal_susceptibility"
+            source_data[header] = calculations.calculate_zhu2016_susceptibility(
+                source_data.vs30, source_data.precip, source_data.dc, source_data.dr
+            )
+            trimmed_columns.append(header)
+            if store_susceptibility:
+                columns.append(header)
+            for rel in pgv_realisations:
+                header = "zhu2016_coastal_probability_{}".format(rel)
+                source_data[header] = calculations.calculate_zhu2016_coastal_coverage(
+                    df[rel], source_data["zhu2016_coastal_susceptibility"]
+                )
+                trimmed_columns.append(header)
+                columns.append(header)
+
+        if gfe_types.zhu2017 in gfe_type:
+            source_data[
+                "zhu2017_susceptibility"
+            ] = calculations.calculate_zhu2016_susceptibility(
+                source_data.vs30,
+                source_data.precipitation,
+                source_data.distance_to_coast,
+                source_data.distance_to_rivers,
+                source_data.water_table_depth,
+            )
+            trimmed_columns.append("zhu2017_susceptibility")
+            if store_susceptibility:
+                columns.append("zhu2017_susceptibility")
+            for rel in pgv_scaled_realisations:
+                header = "zhu2017_probability_{}".format(rel)
+                source_data[header] = calculations.calculate_zhu2017_coverage(
+                    df[rel], source_data["zhu2017_susceptibility"]
+                )
+                trimmed_columns.append(header)
+                columns.append(header)
+
+        if gfe_types.zhu2017_coastal in gfe_type:
+            header = "zhu2017_coastal_susceptibility"
+            source_data[header] = calculations.calculate_zhu2017_coastal_susceptibility(
+                source_data.vs30, source_data.precip, source_data.dc, source_data.dr
+            )
+            trimmed_columns.append(header)
+            if store_susceptibility:
+                columns.append(header)
+            for rel in pgv_realisations:
+                header = "zhu2017_coastal_probability_{}".format(rel)
+                source_data[header] = calculations.calculate_zhu2017_coastal_coverage(
+                    df[rel], source_data["zhu2017_coastal_susceptibility"]
+                )
+                trimmed_columns.append(header)
+                columns.append(header)
+
         source_data_trimmed = source_data[trimmed_columns]
         df = df.merge(
             source_data_trimmed, left_on=[lat_col, lon_col], right_on=["lat", "lon"]
         )
     df.to_csv(output_file, columns=columns, index=False, sep=",")
-
-
-def calculate_zhu2016_susceptibility(
-    vs30, precipitation, distance_to_coast, distance_to_rivers, water_table_depth
-):
-    return (
-        8.801
-        + np.log(vs30) * -1.918
-        + precipitation * 0.0005408
-        + np.minimum(distance_to_coast, distance_to_rivers) * -0.2054
-        + water_table_depth * -0.0333
-    )
-
-
-def calculate_jessee2017_susceptibility(slope, rock, cti, landcover):
-    return (
-        -6.3
-        + np.arctan(slope) * 0.06 * 180 / np.pi
-        + rock * 1
-        + cti * 0.03
-        + landcover * 1.0
-    )
 
 
 def main():
@@ -175,15 +318,15 @@ def main():
     parser.add_argument(
         "--gfe_type",
         "-g",
-        choices=[gfe_types.zhu2016, gfe_types.jessee2017],
+        choices=[x.value for x in gfe_types],
         required=True,
         nargs="+",
     )
     parser.add_argument(
-        "--susceptibility", "-s", help="Flag indicating to store susceptibility"
-    )
-    parser.add_argument(
-        "--im_file", "-i", help="File containing an IM_csv for probability calculations"
+        "--susceptibility",
+        "-s",
+        help="Flag indicating to store susceptibility",
+        action="store_true",
     )
     parser.add_argument(
         "--models_dir",
@@ -197,7 +340,7 @@ def main():
         args.input_file,
         args.output_file,
         args.models_dir,
-        args.gfe_type,
+        [gfe_types(x) for x in args.gfe_type],
         args.susceptibility,
     )
 
