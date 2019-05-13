@@ -340,7 +340,7 @@ def main():
         args.input_file,
         args.output_file,
         args.models_dir,
-        [gfe_types(x) for x in args.gfe_type],
+        [gfe_types[x] for x in args.gfe_type],
         args.susceptibility,
     )
 
