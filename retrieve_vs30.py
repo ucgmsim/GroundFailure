@@ -19,7 +19,7 @@ def interpolate_grid(model_dir, xy_file, output_file):
     with open(output_file, "w") as output_fp:
         output_fp.write(columns)
         output_fp.flush()
-        cmd = ["grdtrack", xy_file, "-nl", "-G" + str(os.path.join(model_dir, "nz_vs30_nz-specific-v18p4_100m.grd"))]
+        cmd = ["grdtrack", xy_file, "-nl", "-G" + str(os.path.join(model_dir, "nz_vs30_nz-specific-v19p1_100m.grd"))]
         print(" ".join(cmd))
         subprocess.call(cmd, stdout=output_fp)
 
