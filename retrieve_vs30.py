@@ -28,18 +28,22 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "min_lat",
+        type=float,
         help="The minimum latitude",
     )
     parser.add_argument(
         "max_lat",
+        type=float,
         help="The maximum latitude",
     )
     parser.add_argument(
         "min_lon",
+        type=float,
         help="The minimum longitude",
     )
     parser.add_argument(
         "max_lon",
+        type=float,
         help="The maximum longitude",
     )
     parser.add_argument("output_file", help="path to output file")
@@ -57,15 +61,19 @@ def main():
     )
     args = parser.parse_args()
 
-    xy_file = mkstemp()
+    xy_file = mkstemp(text=True)[1]
 
-    generate_grid(args.min_lat, args.max_lat, args.min_lon, args.max_lon, xy_file)
+    min_lon, max_lon = min(args.min_lon, args.max_lon), max(args.min_lon, args.max_lon)
+    min_lat, max_lat = min(args.min_lat, args.max_lat), max(args.min_lat, args.max_lat)
+
+    generate_grid(min_lat, max_lat, min_lon, max_lon, xy_file)
 
     interpolate_grid(
         args.models_dir,
         xy_file,
         args.output_file,
     )
+    os.remove(xy_file)
 
 
 if __name__ == "__main__":
