@@ -20,7 +20,7 @@ param_to_model = {
     "distance_to_coast": "nz_dc_km.grd",
     "distance_to_rivers": "nz_dr_km.grd",
     "precipitation": "nz_precip_fil_mm.grd",
-    "vs30": "nz_vs30_nz-specific-v18p4_100m.grd",
+    "vs30": "nz_vs30_nz-specific-v19p1_100m.grd",
     "water_table_depth": "nz_wtd_fil_na_m.grd",
     "slope": "nz_grad.grd",
     "rock": "nz_GLIM_replace.grd",
