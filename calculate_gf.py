@@ -318,7 +318,7 @@ def main():
     parser.add_argument(
         "--gfe_type",
         "-g",
-        choices=[x.value for x in gfe_types],
+        choices=[x.str_value for x in gfe_types],
         required=True,
         nargs="+",
     )
