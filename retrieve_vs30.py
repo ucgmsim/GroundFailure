@@ -9,8 +9,8 @@ STEP_SIZE = 0.0001
 
 def generate_grid(min_lat, max_lat, min_lon, max_lon, xy_file):
     with open(xy_file, 'w') as xy_fp:
-        for lat in np.linspace(min_lat, max_lat, np.ceil((max_lat-min_lat)/STEP_SIZE)):
-            for lon in np.linspace(min_lon, max_lon, np.ceil((max_lon-min_lon)/STEP_SIZE)):
+        for lat in np.linspace(min_lat, max_lat, 1+np.ceil((max_lat-min_lat)/STEP_SIZE)):
+            for lon in np.linspace(min_lon, max_lon, 1+np.ceil((max_lon-min_lon)/STEP_SIZE)):
                 xy_fp.write("{}	{}\n".format(lon, lat))
 
 
