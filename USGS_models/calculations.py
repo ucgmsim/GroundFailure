@@ -36,9 +36,9 @@ def calculate_zhu2016_coastal_susceptability(
             12.435
             + np.log(vs30) * -2.615
             + precipitation * 0.0005556
-            + np.pow(distance_to_coast, 0.5) * -0.0287
+            + np.power(distance_to_coast, 0.5) * -0.0287
             + distance_to_rivers * 0.0666
-            + np.pow(distance_to_coast, 0.5) * distance_to_rivers * -0.0369
+            + np.power(distance_to_coast, 0.5) * distance_to_rivers * -0.0369
     )
 
 
@@ -59,7 +59,7 @@ def calculate_zhu2017_coverage(scaled_pgv, susceptibility):
     return calculate_zhu2016_coverage(scaled_pgv, susceptibility)
 
 
-def calculate_zhu2017_coastal_susceptability(
+def calculate_zhu2017_coastal_susceptibility(
     vs30, precip, distance_to_coast, distance_to_rivers
 ):
     return calculate_zhu2016_coastal_susceptability(
