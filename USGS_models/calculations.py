@@ -59,7 +59,7 @@ def calculate_zhu2017_coverage(scaled_pgv, susceptibility):
     return calculate_zhu2016_coverage(scaled_pgv, susceptibility)
 
 
-def calculate_zhu2017_coastal_susceptability(
+def calculate_zhu2017_coastal_susceptibility(
     vs30, precip, distance_to_coast, distance_to_rivers
 ):
     return calculate_zhu2016_coastal_susceptability(
