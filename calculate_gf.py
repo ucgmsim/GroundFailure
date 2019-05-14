@@ -250,7 +250,7 @@ def calculate_gf(
         if gfe_types.zhu2016_coastal in gfe_type:
             header = "zhu2016_coastal_susceptibility"
             source_data[header] = calculations.calculate_zhu2016_susceptibility(
-                source_data.vs30, source_data.precipitation, source_data.distance_to_coast, source_data.distance_to_rivers
+                source_data.vs30, source_data.precipitation, source_data.distance_to_coast, source_data.distance_to_rivers, source_data.water_table_depth
             )
             trimmed_columns.append(header)
             if store_susceptibility:
