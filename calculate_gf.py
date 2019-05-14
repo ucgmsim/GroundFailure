@@ -86,7 +86,7 @@ def get_required_params(gfe_type):
     params = set()
     for gfe in gfe_type:
         params.update(gfe.columns)
-    return params
+    return sorted(list(params))
 
 
 def get_models(model_dir, gfe_type):
