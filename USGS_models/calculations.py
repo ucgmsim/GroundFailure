@@ -36,9 +36,9 @@ def calculate_zhu2016_coastal_susceptability(
             12.435
             + np.log(vs30) * -2.615
             + precipitation * 0.0005556
-            + np.pow(distance_to_coast, 0.5) * -0.0287
+            + np.power(distance_to_coast, 0.5) * -0.0287
             + distance_to_rivers * 0.0666
-            + np.pow(distance_to_coast, 0.5) * distance_to_rivers * -0.0369
+            + np.power(distance_to_coast, 0.5) * distance_to_rivers * -0.0369
     )
 
 
