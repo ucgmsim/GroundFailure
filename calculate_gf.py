@@ -16,62 +16,59 @@ import pandas as pd
 from USGS_models import calculations
 
 
-param_to_model = {
-    "distance_to_coast": "nz_dc_km.grd",
-    "distance_to_rivers": "nz_dr_km.grd",
-    "precipitation": "nz_precip_fil_mm.grd",
-    "vs30": "nz_vs30_nz-specific-v19p1_100m.grd",
-    "water_table_depth": "nz_wtd_fil_na_m.grd",
-    "slope": "nz_grad.grd",
-    "rock": "nz_GLIM_replace.grd",
-    "landcover": "nz_globcover_replace.grd",
-    "cti": "nz_cti_fil.grd",
-}
+class params(Enum):
+    DISTANCE_TO_COAST = "nz_dc_km.grd"
+    DISTANCE_TO_RIVERS = "nz_dr_km.grd"
+    PRECIPITATION = "nz_precip_fil_mm.grd"
+    VS30 = "nz_vs30_nz-specific-v19p1_100m.grd"
+    WATER_TABLE_DEPTH = "nz_wtd_fil_na_m.grd"
+    SLOPE = "nz_grad.grd"
+    ROCK = "nz_GLIM_replace.grd"
+    LANDCOVER = "nz_globcover_replace.grd"
+    CTI = "nz_cti_fil.grd"
 
 
 class gfe_types(Enum):
-    zhu2015 = "zhu2015", ("cti", "vs30")
+    zhu2015 = "zhu2015", (params.CTI, params.VS30)
     zhu2016 = (
         "zhu2016",
         (
-            "distance_to_coast",
-            "distance_to_rivers",
-            "precipitation",
-            "vs30",
-            "water_table_depth",
+            params.DISTANCE_TO_COAST,
+            params.DISTANCE_TO_RIVERS,
+            params.PRECIPITATION,
+            params.VS30,
+            params.WATER_TABLE_DEPTH,
         ),
     )
     zhu2016_coastal = (
         "zhu2016_coastal",
         (
-            "distance_to_coast",
-            "distance_to_rivers",
-            "precipitation",
-            "vs30",
-            "water_table_depth",
+            params.DISTANCE_TO_COAST,
+            params.DISTANCE_TO_RIVERS,
+            params.PRECIPITATION,
+            params.VS30,
         ),
     )
     zhu2017 = (
         "zhu2017",
         (
-            "distance_to_coast",
-            "distance_to_rivers",
-            "precipitation",
-            "vs30",
-            "water_table_depth",
+            params.DISTANCE_TO_COAST,
+            params.DISTANCE_TO_RIVERS,
+            params.PRECIPITATION,
+            params.VS30,
+            params.WATER_TABLE_DEPTH,
         ),
     )
     zhu2017_coastal = (
         "zhu2017_coastal",
         (
-            "distance_to_coast",
-            "distance_to_rivers",
-            "precipitation",
-            "vs30",
-            "water_table_depth",
+            params.DISTANCE_TO_COAST,
+            params.DISTANCE_TO_RIVERS,
+            params.PRECIPITATION,
+            params.VS30,
         ),
     )
-    jessee2017 = "jessee2017", ("slope", "rock", "landcover", "cti")
+    jessee2017 = "jessee2017", (params.SLOPE, params.ROCK, params.LANDCOVER, params.CTI)
 
     def __new__(cls, str_value, columns):
         obj = object.__new__(cls)
@@ -85,14 +82,18 @@ def get_model_path(model_dir, model):
     return "-G" + str(os.path.join(model_dir, model))
 
 
-def get_models(model_dir, gfe_type):
-    """Determines the models needed for the specific GroundFailure type"""
+def get_required_params(gfe_type):
     params = set()
     for gfe in gfe_type:
         params.update(gfe.columns)
+    return params
+
+
+def get_models(model_dir, gfe_type):
+    """Determines the models needed for the specific GroundFailure type"""
     models = []
-    for model_type in params:
-        models.append(get_model_path(model_dir, param_to_model[model_type]))
+    for model_type in get_required_params(gfe_type):
+        models.append(get_model_path(model_dir, model_type.file_name))
     return models
 
 
@@ -115,32 +116,8 @@ def interpolate_input_grid(model_dirs, xy_file, inputs_file, gfe_type):
     """Uses grdtrack to sample the groundfailure input grids and write their values to `inputs_file`"""
     models = get_models(model_dirs, gfe_type)
     with open(inputs_file, "w") as inputs_fp:
-        columns = "lon	lat"
-        if any(
-            [
-                gfe
-                in [
-                    gfe_types.zhu2016,
-                    gfe_types.zhu2016_coastal,
-                    gfe_types.zhu2017,
-                    gfe_types.zhu2017_coastal,
-                ]
-                for gfe in gfe_type
-            ]
-        ):
-            columns = (
-                columns
-                + "	distance_to_coast	distance_to_rivers	precipitation	vs30	water_table_depth"
-            )
-        if gfe_types.jessee2017 in gfe_type:
-            columns = columns + "	slope	rock	landcover	cti"
-        if gfe_types.zhu2015 in gfe_type:
-            if "cti" not in columns:
-                columns = columns + "   cti"
-            if "vs30" not in columns:
-                columns = columns + "   vs30"
-
-        columns = columns + "\n"
+        columns = "	".join(param.name for param in get_required_params(gfe_type))
+        columns = "lon	lat	" + columns + "\n"
         inputs_fp.write(columns)
         inputs_fp.flush()
         cmd = ["grdtrack", xy_file, "-nl"]
@@ -266,7 +243,7 @@ def calculate_gf(
         if gfe_types.zhu2017 in gfe_type:
             source_data[
                 "zhu2017_susceptibility"
-            ] = calculations.calculate_zhu2016_susceptibility(
+            ] = calculations.calculate_zhu2017_susceptibility(
                 source_data.vs30,
                 source_data.precipitation,
                 source_data.distance_to_coast,
