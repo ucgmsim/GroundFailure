@@ -89,7 +89,7 @@ def get_models(model_dir, gfe_type):
     """Determines the models needed for the specific GroundFailure type"""
     params = set()
     for gfe in gfe_type:
-        params.update(*gfe.columns)
+        params.update(gfe.columns)
     models = []
     for model_type in params:
         models.append(get_model_path(model_dir, param_to_model[model_type]))
