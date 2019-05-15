@@ -15,10 +15,9 @@ import pandas as pd
 
 from USGS_models import calculations
 
-JESSEE_2017_SUSCEPTIBILITY = "jessee2017_susceptibility"
-
 LON = "lon"
 LAT = "lat"
+JESSEE_2017_SUSCEPTIBILITY = "jessee2017_susceptibility"
 ZHU_2017_COASTAL_SUSCEPTIBILITY = "zhu2017_coastal_susceptibility"
 ZHU_2017_SUSCEPTIBILITY = "zhu2017_susceptibility"
 ZHU_2016_COASTAL_SUSCEPTIBILITY = "zhu2016_coastal_susceptibility"
