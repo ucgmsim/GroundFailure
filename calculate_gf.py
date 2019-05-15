@@ -15,7 +15,7 @@ import pandas as pd
 
 from USGS_models import calculations
 
-JESSE_2017_SUSCEPTIBILITY = "jesse2017_susceptibility"
+JESSEE_2017_SUSCEPTIBILITY = "jessee2017_susceptibility"
 
 LON = "lon"
 LAT = "lat"
@@ -178,23 +178,23 @@ def calculate_gf(
         columns = list(df.columns.values)
         if gfe_types.jessee2017 in gfe_type:
             source_data[
-                JESSE_2017_SUSCEPTIBILITY
+                JESSEE_2017_SUSCEPTIBILITY
             ] = calculations.calculate_jessee2017_susceptibility(
                 source_data[params.SLOPE.name],
                 source_data[params.ROCK.name],
                 source_data[params.CTI.name],
                 source_data[params.LANDCOVER.name],
             )
-            trimmed_columns.append(JESSE_2017_SUSCEPTIBILITY)
+            trimmed_columns.append(JESSEE_2017_SUSCEPTIBILITY)
             if store_susceptibility:
-                columns.append(JESSE_2017_SUSCEPTIBILITY)
+                columns.append(JESSEE_2017_SUSCEPTIBILITY)
 
             for rel in pgv_realisations:
-                header = "jesse2017_probability_{}".format(rel)
+                header = "jessee2017_probability_{}".format(rel)
                 source_data[header] = calculations.calculate_jessee2017_coverage(
                     df[rel],
                     source_data[params.SLOPE.name],
-                    source_data[JESSE_2017_SUSCEPTIBILITY],
+                    source_data[JESSEE_2017_SUSCEPTIBILITY],
                 )
                 trimmed_columns.append(header)
                 columns.append(header)
