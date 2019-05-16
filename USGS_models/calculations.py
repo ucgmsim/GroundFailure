@@ -8,7 +8,7 @@ def calculate_zhu2015_susceptibility(compound_topographic_index, vs30):
 
 
 def calculate_zhu2015_coverage(scaled_pga, susceptibility):
-    p = raw_probability_transform(scaled_pga * 2.067 + susceptibility)
+    p = raw_probability_transform(np.log(scaled_pga) * 2.067 + susceptibility)
     return 0.81 * p
 
 

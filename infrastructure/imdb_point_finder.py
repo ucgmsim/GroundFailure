@@ -16,18 +16,14 @@ scaled_ims = ["PGA", "PGV"]
 
 magnitudes = {}
 scale_functions = {
-    "PGA": lambda pga, magnitude, **kwargs: log(
-        (pga / 100.0) * (pow(magnitude, 2.56) / pow(10, 2.24))
-    ),
-    "PGV": lambda pgv, magnitude, **kwargs: log(
-        pgv * (1 / (1 + pow(2.71828, -2 * (magnitude - 6))))
-    ),
+    "PGA": lambda pga, magnitude: pga * (pow(magnitude, 2.56) / pow(10, 2.24)),
+    "PGV": lambda pgv, magnitude: pgv / (1 + pow(2.71828, -2 * (magnitude - 6))),
 }
 
 
-def scale_im(im_val, im_name, **kwargs):
+def scale_im(im_val, im_name, magnitude):
     if im_name in scale_functions:
-        return scale_functions[im_name](im_val, **kwargs)
+        return scale_functions[im_name](im_val, magnitude)
     else:
         return im_val
 
@@ -78,11 +74,9 @@ def imdb_finder(
             )
             for rel in realisations:
                 if rel in intensity_measure_realisations:
-                    kwargs = {}
                     if sources_folder is not None and im in scaled_ims:
-                        kwargs.update({"magnitude": get_magnitude(sources_folder, rel)})
                         data.at[i, "{}_scaled_{}".format(im, rel)] = scale_im(
-                            intensity_measure_realisations[rel], im, **kwargs
+                            intensity_measure_realisations[rel], im, get_magnitude(sources_folder, rel)
                         )
                     data.at[
                         i, "{}_{}".format(im, rel)
