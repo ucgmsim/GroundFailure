@@ -10,7 +10,7 @@ from math import pow, log
 import argparse
 import pandas as pd
 from h5py import File as h5open
-from qcore import  simulation_structure
+from qcore import simulation_structure
 import numpy as np
 
 scaled_ims = ["PGA", "PGV"]
@@ -59,7 +59,7 @@ def im_csv_finder(
     output_file,
     realisation,
     intensity_measures,
-    sources_folder=None,
+    magnitude=None,
 ):
 
     data = pd.read_csv(input_file, index_col=0, encoding="ISO-8859-1")
@@ -89,9 +89,9 @@ def im_csv_finder(
 
         for im in intensity_measures:
 
-            if sources_folder is not None and im in scaled_ims:
+            if magnitude is not None and im in scaled_ims:
                 data.at[i, "{}_scaled_{}".format(im, realisation)] = scale_im(
-                    station_data.loc(station_name, im), im, get_magnitude(sources_folder, realisation)
+                    station_data.loc(station_name, im), im, magnitude
                 )
             data.at[
                 i, "{}_{}".format(im, realisation)
@@ -107,7 +107,7 @@ if __name__ == "__main__":
     parser.add_argument("input", help="Input file name")
     parser.add_argument("output", help="Output file name")
     parser.add_argument(
-        "--realisation",
+        "realisation",
         help="The realisation to choose",
         type=str,
         required=True,
@@ -116,14 +116,13 @@ if __name__ == "__main__":
         "--im", help="Intensity measure name", nargs="+", type=str, required=True
     )
     parser.add_argument(
-        "-d",
-        "--source_dir",
-        help="The cybershake sources directory, in the data directory",
-        type=str,
+        "--magnitude",
+        help="The magnitude of the event",
+        type=float,
         default=None,
     )
     args = parser.parse_args()
 
     im_csv_finder(
-        args.im_csv, args.station_file, args.input, args.output, args.realisation, args.im, args.source_dir
+        args.im_csv, args.station_file, args.input, args.output, args.realisation, args.im, args.magnitude
     )
