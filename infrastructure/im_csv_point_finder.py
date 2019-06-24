@@ -110,10 +110,9 @@ if __name__ == "__main__":
         "realisation",
         help="The realisation to choose",
         type=str,
-        required=True,
     )
     parser.add_argument(
-        "--im", help="Intensity measure name", nargs="+", type=str, required=True
+        "im", help="Intensity measure name", nargs="+", type=str
     )
     parser.add_argument(
         "--magnitude",
