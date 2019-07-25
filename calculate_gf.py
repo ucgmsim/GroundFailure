@@ -296,10 +296,17 @@ def calculate_gf(
                 trimmed_columns.append(header)
                 columns.append(header)
 
+        #round the latitudes / longitudes to remove float error in the merge
+        df[lat_col] = df[lat_col].round(9)
+        df[lon_col] = df[lon_col].round(9)
+        source_data[LAT] = source_data[LAT].round(9)
+        source_data[LON] = source_data[LON].round(9)
+
         source_data_trimmed = source_data[trimmed_columns]
         df = df.merge(
-            source_data_trimmed, left_on=[lat_col, lon_col], right_on=[LAT, LON]
+            source_data_trimmed, left_on=[lat_col, lon_col], right_on=[LAT, LON], how='left'
         )
+    #df.drop_duplicates(subset=[LAT, LON], inplace=True)
     df.to_csv(output_file, columns=columns, index=False, sep=",")
 
 
