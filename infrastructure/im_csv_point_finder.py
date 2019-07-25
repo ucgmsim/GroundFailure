@@ -95,7 +95,7 @@ def im_csv_finder(
                 )
             data.at[
                 i, "{}_{}".format(im, realisation)
-            ] = station_data.loc(station_name, im)
+            ] = station_data.loc[station_data['station'] == station_name][im]
 
     data.to_csv(output_file)
 
