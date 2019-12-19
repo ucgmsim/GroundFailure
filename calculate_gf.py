@@ -132,7 +132,7 @@ def interpolate_input_grid(model_dirs, xy_file, inputs_file, gfe_type):
         columns = "{}	{}	".format(LON, LAT) + columns + "\n"
         inputs_fp.write(columns)
         inputs_fp.flush()
-        cmd = ["grdtrack", xy_file, "-nl"]
+        cmd = ["gmt", "grdtrack", xy_file, "-nl"]
         cmd.extend(models)
         print(" ".join(cmd))
         subprocess.call(cmd, stdout=inputs_fp)
@@ -302,12 +302,13 @@ def calculate_gf(
         source_data[LAT] = source_data[LAT].round(9)
         source_data[LON] = source_data[LON].round(9)
 
-        source_data_trimmed = source_data[trimmed_columns]
+        source_data_trimmed = source_data  #  [trimmed_columns]
         df = df.merge(
             source_data_trimmed, left_on=[lat_col, lon_col], right_on=[LAT, LON], how='left'
         )
     #df.drop_duplicates(subset=[LAT, LON], inplace=True)
     df.to_csv(output_file, columns=columns, index=False, sep=",")
+    df.to_csv(output_file, index=False, sep=",")
 
 
 def main():

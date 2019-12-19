@@ -18,7 +18,7 @@ def calculate_zhu2016_susceptibility(
     return (
         8.801
         + np.log(vs30) * -1.918
-        + precipitation * 0.0005408
+        + np.minimum(precipitation, 2500) * 0.0005408
         + np.minimum(distance_to_coast, distance_to_rivers) * -0.2054
         + water_table_depth * -0.0333
     )
